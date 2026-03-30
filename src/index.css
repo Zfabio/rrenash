@@ -1,0 +1,218 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Ivory Card background with Night Deck foreground */
+    --background: 37 33% 93%;
+    --foreground: 221 39% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 221 39% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 221 39% 11%;
+
+    /* Eagle Gold primary */
+    --primary: 46 65% 52%;
+    --primary-foreground: 221 39% 11%;
+
+    /* Ash Stone secondary */
+    --secondary: 215 14% 46%;
+    --secondary-foreground: 37 33% 93%;
+
+    --muted: 215 14% 90%;
+    --muted-foreground: 215 14% 46%;
+
+    --accent: 46 65% 52%;
+    --accent-foreground: 221 39% 11%;
+
+    /* Crimson Flame for challenges/destructive */
+    --destructive: 350 73% 44%;
+    --destructive-foreground: 37 33% 93%;
+
+    --border: 215 14% 80%;
+    --input: 215 14% 80%;
+    --ring: 46 65% 52%;
+
+    --radius: 0.5rem;
+
+    /* Game-specific tokens - Crimson Flame table felt */
+    --felt: 350 73% 44%;
+    --felt-dark: 350 73% 34%;
+    --felt-light: 350 73% 54%;
+    --eagle-gold: 46 65% 52%;
+    --eagle-gold-light: 46 65% 62%;
+
+    /* Shadows */
+    --shadow-card: 0 4px 15px -4px hsla(0, 0%, 0%, 0.5);
+
+    --sidebar-background: 37 33% 93%;
+    --sidebar-foreground: 221 39% 11%;
+    --sidebar-primary: 46 65% 52%;
+    --sidebar-primary-foreground: 221 39% 11%;
+    --sidebar-accent: 215 14% 85%;
+    --sidebar-accent-foreground: 221 39% 11%;
+    --sidebar-border: 215 14% 80%;
+    --sidebar-ring: 46 65% 52%;
+  }
+
+  .dark {
+    /* Night Deck background with Ivory Card foreground */
+    --background: 221 39% 11%;
+    --foreground: 37 33% 93%;
+
+    --card: 221 39% 15%;
+    --card-foreground: 37 33% 93%;
+
+    --popover: 221 39% 15%;
+    --popover-foreground: 37 33% 93%;
+
+    --primary: 46 65% 52%;
+    --primary-foreground: 221 39% 11%;
+
+    --secondary: 215 14% 26%;
+    --secondary-foreground: 37 33% 93%;
+
+    --muted: 215 14% 20%;
+    --muted-foreground: 215 14% 60%;
+
+    --accent: 46 65% 52%;
+    --accent-foreground: 221 39% 11%;
+
+    --destructive: 350 73% 44%;
+    --destructive-foreground: 37 33% 93%;
+
+    --border: 215 14% 26%;
+    --input: 215 14% 26%;
+    --ring: 46 65% 52%;
+    
+    --sidebar-background: 221 39% 11%;
+    --sidebar-foreground: 37 33% 93%;
+    --sidebar-primary: 46 65% 52%;
+    --sidebar-primary-foreground: 221 39% 11%;
+    --sidebar-accent: 215 14% 26%;
+    --sidebar-accent-foreground: 37 33% 93%;
+    --sidebar-border: 215 14% 26%;
+    --sidebar-ring: 46 65% 52%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased font-sans;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
+
+@layer components {
+  .card-shadow {
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Crimson felt background with Albanian double-headed eagle watermark */
+  .felt-bg {
+    background-color: hsl(var(--felt));
+    background-image: 
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='300' height='300'%3E%3Cpath d='M50,15 C45,10 40,15 45,25 C30,20 20,30 25,40 C15,40 10,50 20,60 C40,55 45,70 50,80 C55,70 60,55 80,60 C90,50 85,40 75,40 C80,30 70,20 55,25 C60,15 55,10 50,15 Z' fill='rgba(0,0,0,0.08)' stroke='rgba(0,0,0,0.03)' stroke-width='1'/%3E%3C/svg%3E"),
+      radial-gradient(ellipse at center, hsl(var(--felt-light)) 0%, hsl(var(--felt)) 50%, hsl(var(--felt-dark)) 100%);
+    background-position: center center;
+    background-blend-mode: overlay, normal;
+  }
+
+  .playing-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Bottom bar panel */
+  .bottom-bar {
+    background: hsla(221, 39%, 11%, 0.9);
+  }
+
+  /* Name label pill */
+  .name-label {
+    background: hsla(37, 33%, 93%, 0.9);
+    color: hsl(221 39% 11%);
+    padding: 2px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid hsla(46, 65%, 52%, 0.4);
+    @apply font-sans;
+  }
+
+  .name-label-active {
+    border-color: hsl(46 65% 52%);
+    box-shadow: 0 0 8px hsla(46, 65%, 52%, 0.4);
+  }
+
+  /* Pile badge */
+  .pile-badge {
+    background: hsla(0, 0%, 100%, 0.9);
+    color: hsl(221 39% 11%);
+    padding: 4px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid hsla(0, 0%, 80%, 1);
+  }
+}
+
+@layer utilities {
+  .text-heart {
+    color: hsl(350 73% 44%);
+  }
+
+  .text-diamond {
+    color: hsl(350 73% 44%);
+  }
+
+  .text-spade {
+    color: hsl(221 39% 11%);
+  }
+
+  .text-club {
+    color: hsl(221 39% 11%);
+  }
+}
+
+/* Animations */
+@keyframes cardDeal {
+  0% { transform: translateY(-30px) rotate(-5deg); opacity: 0; }
+  100% { transform: translateY(0) rotate(0); opacity: 1; }
+}
+
+@keyframes cardSelect {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 8px hsla(46, 65%, 52%, 0.2); }
+  50% { box-shadow: 0 0 20px hsla(46, 65%, 52%, 0.5); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.animate-card-deal { animation: cardDeal 0.3s ease-out forwards; }
+.animate-card-select { animation: cardSelect 0.2s ease-out forwards; }
+.animate-pulse-gold { animation: pulse-gold 2s ease-in-out infinite; }
+.animate-shake { animation: shake 0.4s ease-in-out; }
+.animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
