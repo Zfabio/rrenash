@@ -134,7 +134,8 @@ export function useMultiplayer(): MultiplayerContextType {
     
     if (myPlayer.player_order === loserOrder) {
       // Use sessionStorage to prevent duplicate updates on the same challenge
-      const pickedUpKey = `picked_up_${room.id}_${gameState.challenge_result.challenger}_${gameState.pile.length}`;
+      // Use log.length to guarantee a unique key for every single challenge event
+      const pickedUpKey = `picked_up_${room.id}_${gameState.log.length}`;
       if (sessionStorage.getItem(pickedUpKey)) return;
       sessionStorage.setItem(pickedUpKey, 'true');
 
