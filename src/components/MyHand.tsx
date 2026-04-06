@@ -20,18 +20,20 @@ export function MyHand({
   const isMobile = useIsMobile();
   const total = player.hand.length;
 
-  // Use a comfortable sizing instead of shrinking endlessly
-  const cardSize = isMobile ? 'sm' : 'md';
-  const cardW = cardSize === 'sm' ? 38 : 52;
-  const cardH = cardSize === 'sm' ? 54 : 74;
+  // Use larger sizing! 'md' for mobile, 'lg' for PC.
+  const cardSize = isMobile ? 'md' : 'lg';
+  const cardW = cardSize === 'md' ? 52 : 68;
+  const cardH = cardSize === 'md' ? 74 : 98;
 
   const maxWidth = isMobile ? window.innerWidth - 16 : Math.min(window.innerWidth - 40, 700);
 
-  // We enforce a slightly better spacing since they will wrap if there are too many!
-  const idealSpacing = isMobile ? 26 : 38;
+  // Increase spacing since cards are bigger
+  const idealSpacing = isMobile ? 32 : 46;
   
-  // Set a frame limit: how many cards comfortably fit per row?
-  const maxCardsPerRow = Math.max(1, Math.floor((maxWidth - cardW) / idealSpacing) + 1);
+  // Calculate how many fit natively by math, but also add a hard cap 
+  // so it never looks too squished (max 8 per row on mobile, max 10 on PC)
+  const calcMax = Math.max(1, Math.floor((maxWidth - cardW) / idealSpacing) + 1);
+  const maxCardsPerRow = Math.min(isMobile ? 8 : 10, calcMax);
   
   // If we have more cards than the limit, split into multiple rows
   const numRows = total === 0 ? 0 : Math.ceil(total / maxCardsPerRow);
@@ -66,9 +68,9 @@ export function MyHand({
                 style={{
                   width: `${containerWidth}px`,
                   height: `${containerHeight}px`,
-                  // Make the rows overlap by shifting the lower rows UP
+                  // Make the rows overlap slightly
                   marginTop: rIdx > 0 ? `-${cardH * 0.4}px` : '0',
-                  zIndex: rIdx, // bottom rows render on top of top rows visually so they overlap naturally
+                  zIndex: rIdx,
                 }}
               >
                 {rowCards.map((card, idx) => {
