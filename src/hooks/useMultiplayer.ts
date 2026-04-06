@@ -26,10 +26,9 @@ function shuffleDeck(deck: Card[]): Card[] {
 
 function createDeck(): Card[] {
   const deck: Card[] = [];
-  let id = 0;
   for (const suit of SUITS) {
     for (const rank of RANKS) {
-      deck.push({ suit, rank, id: `card-${id++}` });
+      deck.push({ suit, rank, id: crypto.randomUUID() });
     }
   }
   return shuffleDeck(deck);
@@ -129,7 +128,7 @@ export function useMultiplayer(): MultiplayerContextType {
   useEffect(() => {
     if (!gameState?.challenge_result || !room?.id || !myPlayer) return;
     
-    const { challenger, challenged, wasBluff } = gameState.challenge_result;
+    const { challenger, challenged, wasBluff, pileCards } = gameState.challenge_result;
     const loserOrder = wasBluff ? challenged : challenger;
     
     if (myPlayer.player_order === loserOrder) {
@@ -139,7 +138,9 @@ export function useMultiplayer(): MultiplayerContextType {
       if (sessionStorage.getItem(pickedUpKey)) return;
       sessionStorage.setItem(pickedUpKey, 'true');
 
-      const newHand = sortHand([...myPlayer.hand, ...gameState.pile]);
+      // Use the snapshot of the pile from the challenge result, falling back to current pile
+      const cardsToPickUp = pileCards || gameState.pile;
+      const newHand = sortHand([...myPlayer.hand, ...cardsToPickUp]);
       supabase
         .from('game_players')
         .update({ hand: newHand as any })
@@ -430,7 +431,7 @@ export function useMultiplayer(): MultiplayerContextType {
     const challengeLog = `🔥 ${myPlayer.nickname} challenged ${challengedPlayer.nickname}!`;
     const newLog = [...gameState.log, challengeLog];
 
-    // Show challenge result
+    // Show challenge result AND preserve the pile for the loser to pick up
     await supabase
       .from('game_state')
       .update({
@@ -438,7 +439,8 @@ export function useMultiplayer(): MultiplayerContextType {
           challenger: myPlayer.player_order,
           challenged: challengedPlayerId,
           wasBluff,
-          revealedCards: gameState.last_played_cards
+          revealedCards: gameState.last_played_cards,
+          pileCards: gameState.pile // Save a snapshot of the pile
         } as any,
         log: newLog as any
       })
@@ -561,15 +563,15 @@ export function useMultiplayer(): MultiplayerContextType {
     const allActivePassed = newConsecutivePasses >= activePlayers.length;
 
     if (allActivePassed && gameState.pile.length > 0) {
+      // DON'T discard the pile when everyone passes, just reset passes and allow a fresh claim
       await supabase
         .from('game_state')
         .update({
-          pile: [],
           claim: null,
           last_played_cards: [],
           consecutive_passes: 0,
           current_player: nextPlayer,
-          log: [...gameState.log, `${myPlayer.nickname} passed`, '🗑️ All players passed - pile discarded!'] as any
+          log: [...gameState.log, `${myPlayer.nickname} passed`, '✨ All players passed - new claim can be made!'] as any
         })
         .eq('room_id', room.id);
     } else {

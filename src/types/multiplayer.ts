@@ -40,6 +40,7 @@ export interface OnlineGameState {
     challenged: number;
     wasBluff: boolean;
     revealedCards: Card[];
+    pileCards?: Card[];
   } | null;
   log: string[];
   updated_at: string;

@@ -44,8 +44,12 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
         playSelect();
       }
     }
+    // Automatically clear selections when a new round starts
+    if (gameState?.game_phase === 'playing' && prevPlayerRef.current === null && room?.current_round) {
+      setSelectedCards([]);
+    }
     prevPlayerRef.current = gameState?.current_player ?? null;
-  }, [gameState?.current_player, isMyTurn, gameState?.game_phase, playYourTurn, playSelect]);
+  }, [gameState?.current_player, isMyTurn, gameState?.game_phase, playYourTurn, playSelect, room?.current_round]);
 
   useEffect(() => {
     if (gameState?.pile && gameState.pile.length > prevPileRef.current) {
