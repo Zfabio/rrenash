@@ -20,74 +20,96 @@ export function MyHand({
   const isMobile = useIsMobile();
   const total = player.hand.length;
 
-  // Dynamically pick card size based on count + device
-  const cardSize = isMobile
-    ? total > 18 ? 'xs' : total > 10 ? 'xs' : 'sm'
-    : total > 18 ? 'sm' : total > 12 ? 'sm' : 'md';
-
-  const cardW = cardSize === 'xs' ? 28 : cardSize === 'sm' ? 38 : 52;
-  const cardH = cardSize === 'xs' ? 40 : cardSize === 'sm' ? 54 : 74;
+  // Use a comfortable sizing instead of shrinking endlessly
+  const cardSize = isMobile ? 'sm' : 'md';
+  const cardW = cardSize === 'sm' ? 38 : 52;
+  const cardH = cardSize === 'sm' ? 54 : 74;
 
   const maxWidth = isMobile ? window.innerWidth - 16 : Math.min(window.innerWidth - 40, 700);
 
-  const idealSpacing = isMobile ? 22 : 30;
-  const minSpacing = isMobile ? 11 : 15;
-  const spacing = total <= 1
-    ? idealSpacing
-    : Math.max(minSpacing, Math.min(idealSpacing, (maxWidth - cardW) / (total - 1)));
+  // We enforce a slightly better spacing since they will wrap if there are too many!
+  const idealSpacing = isMobile ? 26 : 38;
+  
+  // Set a frame limit: how many cards comfortably fit per row?
+  const maxCardsPerRow = Math.max(1, Math.floor((maxWidth - cardW) / idealSpacing) + 1);
+  
+  // If we have more cards than the limit, split into multiple rows
+  const numRows = total === 0 ? 0 : Math.ceil(total / maxCardsPerRow);
+  
+  // We balance the rows evenly
+  const cardsPerRow = numRows === 0 ? 0 : Math.ceil(total / numRows);
 
-  const containerWidth = total <= 1 ? cardW + 8 : spacing * (total - 1) + cardW;
+  const rows: CardType[][] = [];
+  for (let i = 0; i < numRows; i++) {
+    rows.push(player.hand.slice(i * cardsPerRow, (i + 1) * cardsPerRow));
+  }
 
-  // Parabolic arc: more cards = deeper curve for better visibility
-  const arcDepth = total > 14 ? 22 : total > 10 ? 16 : total > 6 ? 10 : 6;
-
-  const getCardStyle = (idx: number): React.CSSProperties => {
-    const centerIdx = (total - 1) / 2;
-    const offset = idx - centerIdx;
-    const normalized = total > 1 ? offset / ((total - 1) / 2) : 0;
-
-    const anglePer = total > 14 ? 0.8 : total > 10 ? 1.2 : 1.8;
-    const maxAngle = 18;
-    const angle = Math.max(-maxAngle, Math.min(maxAngle, offset * anglePer));
-
-    // Parabolic y: edges drop down, center stays up
-    const yOffset = normalized * normalized * arcDepth;
-
-    return {
-      transform: `translateY(${yOffset}px) rotate(${angle}deg)`,
-      transformOrigin: 'center 300%',
-      zIndex: idx,
-      position: 'absolute' as const,
-      left: `${idx * spacing}px`,
-    };
-  };
-
-  const containerHeight = cardH + arcDepth + 10;
+  // Helper values for fanning Effect
+  const getArcDepth = (rowTotal: number) => rowTotal > 14 ? 22 : rowTotal > 10 ? 16 : rowTotal > 6 ? 10 : 6;
+  const getAnglePer = (rowTotal: number) => rowTotal > 14 ? 0.8 : rowTotal > 10 ? 1.2 : 1.8;
 
   return (
-    <div className="flex flex-col items-center w-full px-2">
-      <div
-        className="relative mx-auto"
-        style={{
-          width: `${containerWidth}px`,
-          height: `${containerHeight}px`,
-          maxWidth: '100%',
-        }}
-      >
-        {player.hand.map((card, idx) => (
-          <div key={card.id} style={getCardStyle(idx)}>
-            <PlayingCard
-              card={card}
-              isSelected={selectedCards.some(c => c.id === card.id)}
-              onClick={() => onCardSelect?.(card)}
-              disabled={disabled || !isCurrentPlayer}
-              size={cardSize}
-            />
-          </div>
-        ))}
-      </div>
+    <div className="flex flex-col items-center w-full px-2" style={{ paddingBottom: '16px' }}>
+      {rows.length > 0 && (
+        <div className="flex flex-col items-center justify-center w-full mt-2">
+          {rows.map((rowCards, rIdx) => {
+            const rowTotal = rowCards.length;
+            const containerWidth = rowTotal <= 1 ? cardW + 8 : idealSpacing * (rowTotal - 1) + cardW;
+            const arcDepth = getArcDepth(rowTotal);
+            const containerHeight = cardH + arcDepth + 10;
+            const anglePer = getAnglePer(rowTotal);
 
-      {player.hand.length === 0 && (
+            return (
+              <div
+                key={`row-${rIdx}`}
+                className="relative mx-auto transition-transform duration-300"
+                style={{
+                  width: `${containerWidth}px`,
+                  height: `${containerHeight}px`,
+                  // Make the rows overlap by shifting the lower rows UP
+                  marginTop: rIdx > 0 ? `-${cardH * 0.4}px` : '0',
+                  zIndex: rIdx, // bottom rows render on top of top rows visually so they overlap naturally
+                }}
+              >
+                {rowCards.map((card, idx) => {
+                  const centerIdx = (rowTotal - 1) / 2;
+                  const offset = idx - centerIdx;
+                  const normalized = rowTotal > 1 ? offset / ((rowTotal - 1) / 2) : 0;
+              
+                  const maxAngle = 18;
+                  const angle = Math.max(-maxAngle, Math.min(maxAngle, offset * anglePer));
+              
+                  const yOffset = normalized * normalized * arcDepth;
+
+                  return (
+                    <div 
+                      key={card.id} 
+                      style={{
+                        transform: `translateY(${yOffset}px) rotate(${angle}deg)`,
+                        transformOrigin: 'center 300%',
+                        position: 'absolute',
+                        left: `${idx * idealSpacing}px`,
+                        zIndex: idx,
+                        transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+                      }}
+                    >
+                      <PlayingCard
+                        card={card}
+                        isSelected={selectedCards.some(c => c.id === card.id)}
+                        onClick={() => onCardSelect?.(card)}
+                        disabled={disabled || !isCurrentPlayer}
+                        size={cardSize}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {total === 0 && (
         <div className="text-foreground/70 text-sm italic py-4">
           No cards — finished! 🎉
         </div>
