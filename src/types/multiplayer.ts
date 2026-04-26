@@ -41,6 +41,7 @@ export interface OnlineGameState {
     wasBluff: boolean;
     revealedCards: Card[];
     pileCards?: Card[];
+    timestamp?: number;
   } | null;
   log: string[];
   updated_at: string;

@@ -2,7 +2,6 @@
 
 An exciting implementation of the classic Albanian bluff card game, built with React, Vite, Tailwind CSS, and shadcn/ui.
 
-
 ## Play Online 
 The fastest way to play Rrenash is straight from the web — just open the link and start a game.
 

@@ -128,13 +128,17 @@ export function useMultiplayer(): MultiplayerContextType {
   useEffect(() => {
     if (!gameState?.challenge_result || !room?.id || !myPlayer) return;
     
-    const { challenger, challenged, wasBluff, pileCards } = gameState.challenge_result;
+    const { challenger, challenged, wasBluff, pileCards, timestamp } = gameState.challenge_result;
     const loserOrder = wasBluff ? challenged : challenger;
     
     if (myPlayer.player_order === loserOrder) {
+      // Ignore incredibly stale challenges (e.g., coming from an old suspended tab waking up after 15+ seconds)
+      // The 15-second duration is generous to account for any normal lag.
+      if (timestamp && Date.now() - timestamp > 15000) return;
+
       // Use sessionStorage to prevent duplicate updates on the same challenge
-      // Use log.length to guarantee a unique key for every single challenge event
-      const pickedUpKey = `picked_up_${room.id}_${gameState.log.length}`;
+      // Fallback to log length if timestamp doesn't exist
+      const pickedUpKey = `picked_up_${room.id}_${timestamp || gameState.log.length}`;
       if (sessionStorage.getItem(pickedUpKey)) return;
       sessionStorage.setItem(pickedUpKey, 'true');
 
@@ -146,7 +150,7 @@ export function useMultiplayer(): MultiplayerContextType {
         .update({ hand: newHand as any })
         .eq('id', myPlayer.id);
     }
-  }, [gameState?.challenge_result, room?.id, myPlayer, gameState?.pile]);
+  }, [gameState?.challenge_result, room?.id, myPlayer]);
 
   // Fetch initial data when room is set
   useEffect(() => {
@@ -431,7 +435,17 @@ export function useMultiplayer(): MultiplayerContextType {
     const challengeLog = `🔥 ${myPlayer.nickname} challenged ${challengedPlayer.nickname}!`;
     const newLog = [...gameState.log, challengeLog];
 
-    // Show challenge result AND preserve the pile for the loser to pick up
+    const loserOrder = wasBluff ? challengedPlayerId : myPlayer.player_order;
+    const loser = players.find(p => p.player_order === loserOrder);
+    
+    if (!loser) return;
+
+    const resultLog = wasBluff
+      ? `${challengedPlayer.nickname} was bluffing! They take the pile (${gameState.pile.length} cards)`
+      : `${challengedPlayer.nickname} was honest! ${myPlayer.nickname} takes the pile (${gameState.pile.length} cards)`;
+
+    // ONE ATOMIC UPDATE: Show the challenge result, but clear the pile instantly. 
+    // The UI handles showing the result for 2s independently. The Loser picks up `pileCards` from this snapshot.
     await supabase
       .from('game_state')
       .update({
@@ -440,38 +454,20 @@ export function useMultiplayer(): MultiplayerContextType {
           challenged: challengedPlayerId,
           wasBluff,
           revealedCards: gameState.last_played_cards,
-          pileCards: gameState.pile // Save a snapshot of the pile
+          pileCards: gameState.pile, // Snapshot preserved internally inside the result!
+          timestamp: Date.now()
         } as any,
-        log: newLog as any
+        log: [...newLog, resultLog] as any,
+        pile: [], // Clear table immediately!
+        claim: null,
+        last_played_cards: [],
+        current_player: loserOrder, // Turn passes to loser immediately!
+        consecutive_passes: 0
       })
       .eq('room_id', room.id);
 
-    // Process result after delay (done client-side for responsiveness)
-    setTimeout(async () => {
-      const loserOrder = wasBluff ? challengedPlayerId : myPlayer.player_order;
-      const loser = players.find(p => p.player_order === loserOrder);
-      
-      if (!loser) return;
-
-      const resultLog = wasBluff
-        ? `${challengedPlayer.nickname} was bluffing! They take the pile (${gameState.pile.length} cards)`
-        : `${challengedPlayer.nickname} was honest! ${myPlayer.nickname} takes the pile (${gameState.pile.length} cards)`;
-
-      // The loser will update their own hand securely via their local useEffect
-      // because we (the challenger) only receive a sanitized version of their hand securely from Supabase
-
-      await supabase
-        .from('game_state')
-        .update({
-          pile: [],
-          claim: null,
-          last_played_cards: [],
-          challenge_result: null,
-          current_player: loserOrder,
-          log: [...newLog, resultLog] as any
-        })
-        .eq('room_id', room.id);
-    }, 2000);
+    // Completely removed the `setTimeout` which was causing race conditions 
+    // and randomly deleting the game state cards!
   }, [room, gameState, myPlayer, isMyTurn, players]);
 
   const pass = useCallback(async () => {
