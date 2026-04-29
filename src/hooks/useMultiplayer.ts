@@ -486,7 +486,14 @@ export function useMultiplayer(): MultiplayerContextType {
     
     // Check if the player who just played finished their hand (has 0 cards)
     const lastPlayer = players.find(p => p.player_order === gameState.claim?.playerId);
-    const lastPlayerFinishedHand = lastPlayer && lastPlayer.hand.length === 0;
+    
+    // IMPORTANT: Opponent hands are hidden (returned as []), so p.hand.length is always 0 for them.
+    // We must check our own hand length if it's us, or check the log for the "last card" announcement.
+    const lastPlayerFinishedHand = lastPlayer && (
+      lastPlayer.session_id === myPlayer.session_id 
+        ? lastPlayer.hand.length === 0 
+        : gameState.log.some(l => l.includes(`${lastPlayer.nickname} played their last card`))
+    );
     
     const newConsecutivePasses = gameState.consecutive_passes + 1;
     
