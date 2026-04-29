@@ -25,64 +25,54 @@ export function ChallengeStamp({ isVisible, onComplete }: ChallengeStampProps) {
               } 
             }}
             exit={{ 
-              scale: 1.2, 
+              scale: 1.1, 
               opacity: 0,
               transition: { duration: 0.2 } 
             }}
             className="relative flex items-center justify-center"
           >
-            {/* Soft Color Splash / Glow */}
+            {/* Very Soft Color Splash */}
             <motion.div
               initial={{ scale: 0, opacity: 0 }}
               animate={{ 
-                scale: [0, 1.5], 
-                opacity: [0, 0.4, 0] 
+                scale: [0, 1.2], 
+                opacity: [0, 0.3, 0] 
               }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="absolute w-64 h-64 bg-primary/30 rounded-full blur-3xl"
-            />
-            
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ 
-                scale: [0, 2], 
-                opacity: [0, 0.2, 0] 
-              }}
-              transition={{ duration: 1, delay: 0.1, ease: "easeOut" }}
-              className="absolute w-80 h-80 bg-destructive/20 rounded-full blur-3xl"
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="absolute w-48 h-48 bg-primary/20 rounded-full blur-2xl"
             />
 
             {/* Subtle Particles */}
             <div className="absolute inset-0">
-              {[...Array(6)].map((_, i) => (
+              {[...Array(4)].map((_, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, x: 0, y: 0 }}
                   animate={{ 
                     opacity: [0, 1, 0],
-                    x: (Math.random() - 0.5) * 150,
-                    y: (Math.random() - 0.5) * 150,
-                    scale: [0, 1.5, 0]
+                    x: (Math.random() - 0.5) * 100,
+                    y: (Math.random() - 0.5) * 100,
+                    scale: [0, 1, 0]
                   }}
-                  transition={{ duration: 0.6, delay: i * 0.05 }}
-                  className="absolute left-1/2 top-1/2 w-2 h-2 rounded-full bg-primary/40 blur-[1px]"
+                  transition={{ duration: 0.5, delay: i * 0.05 }}
+                  className="absolute left-1/2 top-1/2 w-1.5 h-1.5 rounded-full bg-primary/30 blur-[1px]"
                 />
               ))}
             </div>
 
-            {/* Text with simple glow */}
+            {/* Smaller Text with subtle glow */}
             <div className="relative">
-              <h2 className="text-7xl md:text-8xl font-black font-title tracking-tighter text-white drop-shadow-[0_0_15px_rgba(239,68,68,0.5)] uppercase italic relative z-10">
+              <h2 className="text-5xl md:text-6xl font-black font-title tracking-tighter text-white drop-shadow-[0_0_10px_rgba(239,68,68,0.4)] uppercase italic relative z-10">
                 {text}
               </h2>
               
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: [0, 1, 0], scale: [0.9, 1.1] }}
-                transition={{ duration: 0.4 }}
-                className="absolute inset-0 text-primary blur-md pointer-events-none"
+                animate={{ opacity: [0, 0.7, 0], scale: [0.9, 1.05] }}
+                transition={{ duration: 0.3 }}
+                className="absolute inset-0 text-primary blur-sm pointer-events-none"
               >
-                <span className="text-7xl md:text-8xl font-black font-title tracking-tighter uppercase italic">
+                <span className="text-5xl md:text-6xl font-black font-title tracking-tighter uppercase italic">
                   {text}
                 </span>
               </motion.div>

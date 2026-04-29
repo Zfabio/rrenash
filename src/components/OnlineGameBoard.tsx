@@ -67,7 +67,12 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
     if (gameState?.challenge_result && gameState.challenge_result.timestamp !== lastChallengeTimestamp.current) {
       lastChallengeTimestamp.current = gameState.challenge_result.timestamp || Date.now();
       setShowChallengeResult(true);
-      setShowStamp(true);
+      
+      // Only show the stamp if they were actually lying
+      if (gameState.challenge_result.wasBluff) {
+        setShowStamp(true);
+      }
+      
       const timer = setTimeout(() => {
         setShowChallengeResult(false);
         setShowStamp(false);
