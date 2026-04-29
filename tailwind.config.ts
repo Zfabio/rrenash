@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Lora", "serif"],
-        serif: ["Playfair Display", "serif"],
+        sans: ["'IM Fell DW Pica'", "serif"],
+        serif: ["'IM Fell English'", "serif"],
         title: ["'IM Fell English'", "serif"],
       },
       colors: {

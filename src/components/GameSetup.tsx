@@ -38,7 +38,7 @@ export function GameSetup({ onStartGame, onOnlinePlay }: GameSetupProps) {
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground/80">{t.players}</label>
             <Select value={numPlayers.toString()} onValueChange={(v) => setNumPlayers(parseInt(v))}>
-              <SelectTrigger className="bg-secondary border-border text-foreground">
+              <SelectTrigger className="bg-secondary border-border text-secondary-foreground">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -52,7 +52,7 @@ export function GameSetup({ onStartGame, onOnlinePlay }: GameSetupProps) {
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground/80">{t.rounds}</label>
             <Select value={totalRounds.toString()} onValueChange={(v) => setTotalRounds(parseInt(v))}>
-              <SelectTrigger className="bg-secondary border-border text-foreground">
+              <SelectTrigger className="bg-secondary border-border text-secondary-foreground">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
