@@ -36,6 +36,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
   const { room, players, gameState, myPlayer, isMyTurn, isHost, playCards, challenge, pass, nextRound, leaveRoom } = multiplayer;
 
   const [selectedCards, setSelectedCards] = useState<CardType[]>([]);
+  const [showChallengeResult, setShowChallengeResult] = useState(false);
   const [showStamp, setShowStamp] = useState(false);
   const [showLog, setShowLog] = useState(false);
   const lastChallengeTimestamp = useRef<number>(0);
