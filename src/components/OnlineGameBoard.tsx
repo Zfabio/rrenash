@@ -12,8 +12,6 @@ import { useSound } from '@/hooks/useSound';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { LogOut, MessageSquare, X } from 'lucide-react';
-import { ChallengeStamp } from './vfx/ChallengeStamp';
-import { fireRoundConfetti, fireWinConfetti } from '@/lib/confetti';
 
 interface OnlineGameBoardProps {
   multiplayer: MultiplayerContextType;
@@ -37,7 +35,6 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
 
   const [selectedCards, setSelectedCards] = useState<CardType[]>([]);
   const [showChallengeResult, setShowChallengeResult] = useState(false);
-  const [showStamp, setShowStamp] = useState(false);
   const [showLog, setShowLog] = useState(false);
   const lastChallengeTimestamp = useRef<number>(0);
 
@@ -68,14 +65,9 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
       lastChallengeTimestamp.current = gameState.challenge_result.timestamp || Date.now();
       setShowChallengeResult(true);
       
-      // Only show the stamp if they were actually lying
-      if (gameState.challenge_result.wasBluff) {
-        setShowStamp(true);
-      }
-      
+      // Only show the result overlay
       const timer = setTimeout(() => {
         setShowChallengeResult(false);
-        setShowStamp(false);
       }, 2000);
       return () => clearTimeout(timer);
     }
@@ -83,7 +75,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
 
   useEffect(() => {
     if (gameState?.game_phase === 'roundEnd') {
-      fireRoundConfetti();
+      // fireRoundConfetti(); // Removed
     }
   }, [gameState?.game_phase]);
 
@@ -395,7 +387,6 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
           </div>
         </div>
       </div>
-      <ChallengeStamp isVisible={showStamp} onComplete={() => setShowStamp(false)} />
     </div>
   );
 }

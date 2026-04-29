@@ -9,8 +9,6 @@ import { PlayerAvatar } from './PlayerAvatar';
 import { MyHand } from './MyHand';
 import { PlayingCard, CardBack } from './PlayingCard';
 import { cn } from '@/lib/utils';
-import { ChallengeStamp } from './vfx/ChallengeStamp';
-import { fireRoundConfetti, fireWinConfetti } from '@/lib/confetti';
 import { 
   initializeGame, 
   getNextPlayer, 
@@ -38,7 +36,6 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
   );
   const [selectedCards, setSelectedCards] = useState<CardType[]>([]);
   const [showChallengeResult, setShowChallengeResult] = useState(false);
-  const [showStamp, setShowStamp] = useState(false);
 
   const currentPlayer = gameState.players[gameState.currentPlayer];
   const isHumanTurn = currentPlayer?.isHuman;
@@ -66,7 +63,7 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
   // Handle Round/Game End effects
   useEffect(() => {
     if (gameState.gamePhase === 'roundEnd') {
-      fireRoundConfetti();
+      // fireRoundConfetti(); // Removed
     }
   }, [gameState.gamePhase]);
 
@@ -174,12 +171,10 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
       log: [...prev.log, `🔥 ${challengerName} challenged ${challengedName}!`]
     }));
 
-    setShowStamp(true);
     setShowChallengeResult(true);
 
     // Process challenge result after delay
     setTimeout(() => {
-      setShowStamp(false);
       setGameState(prev => {
         const loserIdx = wasBluff ? challengedPlayerId : challengerId;
         // If the loser was a finished player, remove them from finished (they got cards back)
@@ -589,7 +584,6 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
         </div>
       </div>
 
-      <ChallengeStamp isVisible={showStamp} onComplete={() => setShowStamp(false)} />
     </div>
   );
 }
