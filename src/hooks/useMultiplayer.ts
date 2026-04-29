@@ -140,11 +140,19 @@ export function useMultiplayer(): MultiplayerContextType {
 
       // Use the snapshot of the pile from the challenge result, falling back to current pile
       const cardsToPickUp = pileCards || gameState.pile;
-      const newHand = sortHand([...myPlayer.hand, ...cardsToPickUp]);
+      
+      // If the hand is stale (hasn't updated from a recent play), it might still contain the cards we are picking up.
+      // Filter them out first to prevent duplicate card IDs which breaks React rendering.
+      const currentHand = myPlayer.hand.filter(c => !cardsToPickUp.some(pickup => pickup.id === c.id));
+      const newHand = sortHand([...currentHand, ...cardsToPickUp]);
+      
       supabase
         .from('game_players')
         .update({ hand: newHand as any })
-        .eq('id', myPlayer.id);
+        .eq('id', myPlayer.id)
+        .then(({ error }) => {
+          if (error) console.error("Error picking up cards:", error);
+        });
     }
   }, [gameState?.challenge_result, room?.id, myPlayer]);
 
@@ -421,6 +429,9 @@ export function useMultiplayer(): MultiplayerContextType {
 
   const challenge = useCallback(async () => {
     if (!room || !gameState || !myPlayer || !gameState.claim) return;
+
+    // Prevent double-execution if the pile is already empty from a previous click
+    if (gameState.pile.length === 0) return;
 
     const challengedPlayerId = gameState.claim.playerId;
     const challengedPlayer = players.find(p => p.player_order === challengedPlayerId);
