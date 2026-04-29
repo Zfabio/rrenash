@@ -18,8 +18,8 @@
     --primary: 40 35% 45%;
     --primary-foreground: 40 30% 94%;
 
-    /* Muted Slate secondary */
-    --secondary: 200 15% 40%;
+    /* Warm Vintage Brown secondary */
+    --secondary: 30 25% 25%;
     --secondary-foreground: 40 30% 94%;
 
     --muted: 40 20% 85%;
@@ -72,7 +72,7 @@
     --primary: 40 35% 45%;
     --primary-foreground: 40 30% 94%;
 
-    --secondary: 200 15% 30%;
+    --secondary: 30 30% 20%;
     --secondary-foreground: 40 30% 94%;
 
     --muted: 30 20% 20%;

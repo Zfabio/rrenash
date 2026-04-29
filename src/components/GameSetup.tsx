@@ -93,10 +93,10 @@ export function GameSetup({ onStartGame, onOnlinePlay }: GameSetupProps) {
 
       {/* Title */}
       <div className="mb-16 text-center">
-        <h1 className="text-5xl md:text-7xl font-bold text-foreground tracking-wider">
+        <h1 className="text-5xl md:text-7xl font-bold text-primary tracking-wider drop-shadow-md">
           RRENASH
         </h1>
-        <p className="text-foreground/50 mt-3 text-sm md:text-base">
+        <p className="text-primary/70 mt-3 text-sm md:text-base font-medium">
           {t.gameSubtitle}
         </p>
       </div>
@@ -113,7 +113,7 @@ export function GameSetup({ onStartGame, onOnlinePlay }: GameSetupProps) {
         {onOnlinePlay && (
           <button
             onClick={onOnlinePlay}
-            className="w-full py-3.5 text-lg font-semibold text-foreground bg-secondary border border-border rounded-full hover:brightness-110 transition-all shadow-md hover:scale-105"
+            className="w-full py-3.5 text-lg font-semibold text-secondary-foreground bg-secondary border border-secondary/50 rounded-full hover:brightness-110 transition-all shadow-md hover:scale-105"
           >
             {onlineText}
           </button>
@@ -121,7 +121,7 @@ export function GameSetup({ onStartGame, onOnlinePlay }: GameSetupProps) {
 
         <button
           onClick={() => setShowRules(true)}
-          className="w-full py-3.5 text-lg font-medium text-foreground/70 border border-foreground/20 rounded-full hover:bg-secondary/50 transition-all hover:scale-105"
+          className="w-full py-3.5 text-lg font-medium text-background/80 border border-background/30 rounded-full hover:bg-background/10 transition-all hover:scale-105"
         >
           {rulesTitle}
         </button>

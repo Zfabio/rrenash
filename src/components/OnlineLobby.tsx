@@ -91,8 +91,8 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
   // In waiting room
   if (room) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen felt-bg flex items-center justify-center p-4">
+        <Card className="w-full max-w-md shadow-2xl">
           <CardHeader className="text-center">
             <div className="flex justify-between items-center mb-2">
               <Button variant="ghost" size="sm" onClick={leaveRoom}>
@@ -101,7 +101,7 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
               </Button>
               <LanguageToggle />
             </div>
-            <CardTitle className="text-2xl">🃏 {t.gameTitle}</CardTitle>
+            <CardTitle className="text-3xl font-serif text-primary tracking-wider">{t.gameTitle}</CardTitle>
             <CardDescription>{txt.waitingForPlayers}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -169,8 +169,8 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
   // Menu
   if (mode === 'menu') {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen felt-bg flex items-center justify-center p-4">
+        <Card className="w-full max-w-md shadow-2xl">
           <CardHeader className="text-center">
             <div className="flex justify-between items-center mb-2">
               <Button variant="ghost" size="sm" onClick={onBack}>
@@ -179,7 +179,7 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
               </Button>
               <LanguageToggle />
             </div>
-            <CardTitle className="text-3xl">🃏 {t.gameTitle}</CardTitle>
+            <CardTitle className="text-3xl font-serif text-primary tracking-wider">{t.gameTitle}</CardTitle>
             <CardDescription>{txt.onlinePlay}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -207,8 +207,8 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
   // Create room form
   if (mode === 'create') {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen felt-bg flex items-center justify-center p-4">
+        <Card className="w-full max-w-md shadow-2xl">
           <CardHeader className="text-center">
             <div className="flex justify-between items-center mb-2">
               <Button variant="ghost" size="sm" onClick={() => setMode('menu')}>
@@ -217,7 +217,7 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
               </Button>
               <LanguageToggle />
             </div>
-            <CardTitle>{txt.createRoom}</CardTitle>
+            <CardTitle className="text-2xl font-serif text-primary tracking-wide">{txt.createRoom}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -283,8 +283,8 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
 
   // Join room form
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen felt-bg flex items-center justify-center p-4">
+      <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="text-center">
           <div className="flex justify-between items-center mb-2">
             <Button variant="ghost" size="sm" onClick={() => setMode('menu')}>
@@ -293,7 +293,7 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
             </Button>
             <LanguageToggle />
           </div>
-          <CardTitle>{txt.joinRoom}</CardTitle>
+          <CardTitle className="text-2xl font-serif text-primary tracking-wide">{txt.joinRoom}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
