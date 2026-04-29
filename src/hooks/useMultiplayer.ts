@@ -132,10 +132,6 @@ export function useMultiplayer(): MultiplayerContextType {
     const loserOrder = wasBluff ? challenged : challenger;
     
     if (myPlayer.player_order === loserOrder) {
-      // Ignore incredibly stale challenges (e.g., coming from an old suspended tab waking up after 15+ seconds)
-      // The 15-second duration is generous to account for any normal lag.
-      if (timestamp && Date.now() - timestamp > 15000) return;
-
       // Use sessionStorage to prevent duplicate updates on the same challenge
       // Fallback to log length if timestamp doesn't exist
       const pickedUpKey = `picked_up_${room.id}_${timestamp || gameState.log.length}`;
