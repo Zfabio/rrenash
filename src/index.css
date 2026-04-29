@@ -4,98 +4,98 @@
 
 @layer base {
   :root {
-    /* Ivory Card background with Night Deck foreground */
-    --background: 37 33% 93%;
-    --foreground: 221 39% 11%;
+    /* Vintage Paper background with Dark Sepia foreground */
+    --background: 40 30% 94%;
+    --foreground: 30 40% 18%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 221 39% 11%;
+    --card: 40 20% 97%;
+    --card-foreground: 30 40% 18%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 221 39% 11%;
+    --popover: 40 20% 97%;
+    --popover-foreground: 30 40% 18%;
 
-    /* Eagle Gold primary */
-    --primary: 46 65% 52%;
-    --primary-foreground: 221 39% 11%;
+    /* Faded Antique Gold primary */
+    --primary: 40 35% 45%;
+    --primary-foreground: 40 30% 94%;
 
-    /* Ash Stone secondary */
-    --secondary: 215 14% 46%;
-    --secondary-foreground: 37 33% 93%;
+    /* Muted Slate secondary */
+    --secondary: 200 15% 40%;
+    --secondary-foreground: 40 30% 94%;
 
-    --muted: 215 14% 90%;
-    --muted-foreground: 215 14% 46%;
+    --muted: 40 20% 85%;
+    --muted-foreground: 30 20% 40%;
 
-    --accent: 46 65% 52%;
-    --accent-foreground: 221 39% 11%;
+    --accent: 40 35% 45%;
+    --accent-foreground: 40 30% 94%;
 
-    /* Crimson Flame for challenges/destructive */
-    --destructive: 350 73% 44%;
-    --destructive-foreground: 37 33% 93%;
+    /* Faded Crimson for destructive */
+    --destructive: 355 45% 45%;
+    --destructive-foreground: 40 30% 94%;
 
-    --border: 215 14% 80%;
-    --input: 215 14% 80%;
-    --ring: 46 65% 52%;
+    --border: 40 20% 80%;
+    --input: 40 20% 80%;
+    --ring: 40 35% 45%;
 
     --radius: 0.5rem;
 
-    /* Game-specific tokens - Crimson Flame table felt */
-    --felt: 350 73% 44%;
-    --felt-dark: 350 73% 34%;
-    --felt-light: 350 73% 54%;
-    --eagle-gold: 46 65% 52%;
-    --eagle-gold-light: 46 65% 62%;
+    /* Game-specific tokens - Muted Vintage Green table felt */
+    --felt: 140 20% 38%;
+    --felt-dark: 140 25% 25%;
+    --felt-light: 140 15% 48%;
+    --eagle-gold: 40 35% 45%;
+    --eagle-gold-light: 40 35% 55%;
 
     /* Shadows */
-    --shadow-card: 0 4px 15px -4px hsla(0, 0%, 0%, 0.5);
+    --shadow-card: 0 4px 15px -4px hsla(0, 0%, 0%, 0.6);
 
-    --sidebar-background: 37 33% 93%;
-    --sidebar-foreground: 221 39% 11%;
-    --sidebar-primary: 46 65% 52%;
-    --sidebar-primary-foreground: 221 39% 11%;
-    --sidebar-accent: 215 14% 85%;
-    --sidebar-accent-foreground: 221 39% 11%;
-    --sidebar-border: 215 14% 80%;
-    --sidebar-ring: 46 65% 52%;
+    --sidebar-background: 40 30% 94%;
+    --sidebar-foreground: 30 40% 18%;
+    --sidebar-primary: 40 35% 45%;
+    --sidebar-primary-foreground: 40 30% 94%;
+    --sidebar-accent: 40 20% 85%;
+    --sidebar-accent-foreground: 30 40% 18%;
+    --sidebar-border: 40 20% 80%;
+    --sidebar-ring: 40 35% 45%;
   }
 
   .dark {
-    /* Night Deck background with Ivory Card foreground */
-    --background: 221 39% 11%;
-    --foreground: 37 33% 93%;
+    /* Deep Vintage Brown background */
+    --background: 30 30% 12%;
+    --foreground: 40 20% 85%;
 
-    --card: 221 39% 15%;
-    --card-foreground: 37 33% 93%;
+    --card: 30 25% 16%;
+    --card-foreground: 40 20% 85%;
 
-    --popover: 221 39% 15%;
-    --popover-foreground: 37 33% 93%;
+    --popover: 30 25% 16%;
+    --popover-foreground: 40 20% 85%;
 
-    --primary: 46 65% 52%;
-    --primary-foreground: 221 39% 11%;
+    --primary: 40 35% 45%;
+    --primary-foreground: 40 30% 94%;
 
-    --secondary: 215 14% 26%;
-    --secondary-foreground: 37 33% 93%;
+    --secondary: 200 15% 30%;
+    --secondary-foreground: 40 30% 94%;
 
-    --muted: 215 14% 20%;
-    --muted-foreground: 215 14% 60%;
+    --muted: 30 20% 20%;
+    --muted-foreground: 40 15% 60%;
 
-    --accent: 46 65% 52%;
-    --accent-foreground: 221 39% 11%;
+    --accent: 40 35% 45%;
+    --accent-foreground: 40 30% 94%;
 
-    --destructive: 350 73% 44%;
-    --destructive-foreground: 37 33% 93%;
+    --destructive: 355 45% 45%;
+    --destructive-foreground: 40 30% 94%;
 
-    --border: 215 14% 26%;
-    --input: 215 14% 26%;
-    --ring: 46 65% 52%;
+    --border: 30 20% 25%;
+    --input: 30 20% 25%;
+    --ring: 40 35% 45%;
     
-    --sidebar-background: 221 39% 11%;
-    --sidebar-foreground: 37 33% 93%;
-    --sidebar-primary: 46 65% 52%;
-    --sidebar-primary-foreground: 221 39% 11%;
-    --sidebar-accent: 215 14% 26%;
-    --sidebar-accent-foreground: 37 33% 93%;
-    --sidebar-border: 215 14% 26%;
-    --sidebar-ring: 46 65% 52%;
+    --sidebar-background: 30 30% 12%;
+    --sidebar-foreground: 40 20% 85%;
+    --sidebar-primary: 40 35% 45%;
+    --sidebar-primary-foreground: 40 30% 94%;
+    --sidebar-accent: 30 20% 20%;
+    --sidebar-accent-foreground: 40 20% 85%;
+    --sidebar-border: 30 20% 25%;
+    --sidebar-ring: 40 35% 45%;
   }
 }
 
