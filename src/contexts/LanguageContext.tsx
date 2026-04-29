@@ -123,7 +123,7 @@ const translations: Record<Language, Translations> = {
   },
   sq: {
     gameTitle: 'Rrenash',
-    gameSubtitle: 'Loja Shqiptare e Blofës me Letra',
+    gameSubtitle: '',
     howToPlay: 'Si të Luhet:',
     rules: [
       'Lojtari i parë zgjedh një numër dhe hedh letrat me fytyrë poshtë',
@@ -189,7 +189,7 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguage] = useState<Language>('sq');
   
   const value = {
     language,
