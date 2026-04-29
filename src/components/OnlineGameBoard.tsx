@@ -135,7 +135,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
       hand: p.hand,
       score: p.score,
       finishPosition: finishedIndex !== -1 ? finishedIndex + 1 : undefined,
-      handSize: (p as any).hand_size || p.hand.length,
+      handSize: p.hand_size || p.hand.length,
       isHuman: p.session_id === myPlayer.session_id,
       isThinking: gameState.current_player === p.player_order && p.session_id !== myPlayer.session_id,
     };

@@ -22,6 +22,7 @@ export interface GamePlayer {
   score: number;
   is_host: boolean;
   is_connected: boolean;
+  hand_size?: number;
   created_at: string;
 }
 
