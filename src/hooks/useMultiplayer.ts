@@ -487,12 +487,15 @@ export function useMultiplayer(): MultiplayerContextType {
     // Check if the player who just played finished their hand (has 0 cards)
     const lastPlayer = players.find(p => p.player_order === gameState.claim?.playerId);
     
-    // IMPORTANT: Opponent hands are hidden (returned as []), so p.hand.length is always 0 for them.
-    // We must check our own hand length if it's us, or check the log for the "last card" announcement.
+    // Robust check for finisher:
+    // 1. If it's us, we know our hand length.
+    // 2. If it's an opponent, we check the log for the "last card" announcement.
+    // We only check the last 5 log entries to avoid matching messages from previous turns/rounds.
+    const lastLogEntries = gameState.log.slice(-5);
     const lastPlayerFinishedHand = lastPlayer && (
       lastPlayer.session_id === myPlayer.session_id 
         ? lastPlayer.hand.length === 0 
-        : gameState.log.some(l => l.includes(`${lastPlayer.nickname} played their last card`))
+        : lastLogEntries.some(l => l.includes(`${lastPlayer.nickname} played their last card`))
     );
     
     const newConsecutivePasses = gameState.consecutive_passes + 1;
@@ -516,10 +519,15 @@ export function useMultiplayer(): MultiplayerContextType {
       const points = position === 1 ? 3 : position === 2 ? 2 : position === 3 ? 1 : 0;
       
       // Update the finished player's score
-      await supabase
-        .from('game_players')
-        .update({ score: lastPlayer.score + points })
-        .eq('id', lastPlayer.id);
+      // Update the finished player's score (try-catch because RLS might prevent updating others)
+      try {
+        await supabase
+          .from('game_players')
+          .update({ score: lastPlayer.score + points })
+          .eq('id', lastPlayer.id);
+      } catch (e) {
+        console.warn("Could not update opponent score due to RLS, this is expected if not host:", e);
+      }
       
       const positionText = position === 1 ? '1st 🥇' : position === 2 ? '2nd 🥈' : position === 3 ? '3rd 🥉' : 'Last';
       const passLog = `${myPlayer.nickname} passed`;
