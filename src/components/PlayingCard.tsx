@@ -1,6 +1,7 @@
 import { Card as CardType } from '@/types/game';
 import { cn } from '@/lib/utils';
 import React from 'react';
+import { motion } from 'framer-motion';
 
 interface PlayingCardProps {
   card: CardType;
@@ -71,19 +72,24 @@ export function PlayingCard({
   }
 
   return (
-    <button
+    <motion.button
+      layout
+      initial={{ scale: 0.5, opacity: 0, y: 50 }}
+      animate={{ scale: 1, opacity: 1, y: 0 }}
+      exit={{ scale: 0.5, opacity: 0, y: -50 }}
+      whileHover={{ scale: disabled ? 1 : 1.05, y: isSelected ? -20 : -5 }}
+      whileTap={{ scale: 0.95 }}
       onClick={onClick}
       disabled={disabled}
       className={cn(
         cfg.card,
         'rounded-lg bg-white relative overflow-hidden flex-shrink-0',
-        'transition-all duration-200 cursor-pointer border border-gray-300',
-        'hover:brightness-[1.02] active:scale-[0.97]',
-        isSelected && '-translate-y-4 ring-2 ring-primary shadow-[0_0_16px_hsla(36,90%,55%,0.5)]',
-        disabled && 'cursor-not-allowed hover:brightness-100',
+        'cursor-pointer border border-gray-300',
+        isSelected && 'ring-2 ring-primary shadow-[0_0_16px_hsla(36,90%,55%,0.5)]',
+        disabled && 'cursor-not-allowed grayscale-[0.2]',
         'shadow-[0_2px_8px_rgba(0,0,0,0.3)]'
       )}
-      style={{ animationDelay: `${animationDelay}ms`, ...style }}
+      style={{ ...style }}
     >
       {/* Top-left corner */}
       <div className={cn('absolute flex flex-col items-center leading-none', cfg.cornerGap, cfg.corner)}>
@@ -101,7 +107,7 @@ export function PlayingCard({
         <span className={cn('font-bold font-card', cfg.rank, colorClass)}>{card.rank}</span>
         <span className={cn(cfg.suit, colorClass)}>{card.suit}</span>
       </div>
-    </button>
+    </motion.button>
   );
 }
 
@@ -118,9 +124,13 @@ export function CardBack({
 
   // Blue diagonal stripe card back
   return (
-    <div
+    <motion.div
+      layout
+      initial={{ scale: 0.8, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0.8, opacity: 0 }}
       className={cn(cfg.card, 'rounded-lg overflow-hidden flex-shrink-0 shadow-[0_2px_8px_rgba(0,0,0,0.3)]')}
-      style={{ animationDelay: `${animationDelay}ms`, ...style }}
+      style={{ ...style }}
     >
       <div className="w-full h-full bg-blue-600 rounded-lg border-2 border-blue-400/60 relative overflow-hidden">
         {/* Diagonal stripes */}
@@ -133,6 +143,6 @@ export function CardBack({
         {/* Inner border */}
         <div className="absolute inset-[3px] border border-white/20 rounded-md" />
       </div>
-    </div>
+    </motion.div>
   );
 }

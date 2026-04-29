@@ -9,6 +9,8 @@ import { PlayerAvatar } from './PlayerAvatar';
 import { MyHand } from './MyHand';
 import { PlayingCard, CardBack } from './PlayingCard';
 import { cn } from '@/lib/utils';
+import { ChallengeStamp } from './vfx/ChallengeStamp';
+import { fireRoundConfetti, fireWinConfetti } from '@/lib/confetti';
 import { 
   initializeGame, 
   getNextPlayer, 
@@ -36,6 +38,7 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
   );
   const [selectedCards, setSelectedCards] = useState<CardType[]>([]);
   const [showChallengeResult, setShowChallengeResult] = useState(false);
+  const [showStamp, setShowStamp] = useState(false);
 
   const currentPlayer = gameState.players[gameState.currentPlayer];
   const isHumanTurn = currentPlayer?.isHuman;
@@ -59,6 +62,13 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
     }
     prevPileRef.current = gameState.pile.length;
   }, [gameState.pile.length, playCardPlay]);
+
+  // Handle Round/Game End effects
+  useEffect(() => {
+    if (gameState.gamePhase === 'roundEnd') {
+      fireRoundConfetti();
+    }
+  }, [gameState.gamePhase]);
 
   // Handle card selection - allow any cards to be selected for bluffing
   const handleCardSelect = useCallback((card: CardType) => {
@@ -164,10 +174,12 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
       log: [...prev.log, `🔥 ${challengerName} challenged ${challengedName}!`]
     }));
 
+    setShowStamp(true);
     setShowChallengeResult(true);
 
     // Process challenge result after delay
     setTimeout(() => {
+      setShowStamp(false);
       setGameState(prev => {
         const loserIdx = wasBluff ? challengedPlayerId : challengerId;
         // If the loser was a finished player, remove them from finished (they got cards back)
@@ -533,6 +545,17 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
               <div className="relative z-10"><CardBack size="sm" /></div>
             </div>
           )}
+          
+          {/* Decorative Deck */}
+          <div className="absolute -right-24 top-0 pointer-events-none hidden md:block">
+            <div className="relative opacity-40">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="absolute" style={{ top: -i*2, left: i*1 }}>
+                  <CardBack size="sm" />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -565,6 +588,8 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
           </div>
         </div>
       </div>
+
+      <ChallengeStamp isVisible={showStamp} onComplete={() => setShowStamp(false)} />
     </div>
   );
 }

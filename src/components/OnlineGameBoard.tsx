@@ -12,6 +12,8 @@ import { useSound } from '@/hooks/useSound';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { LogOut, MessageSquare, X } from 'lucide-react';
+import { ChallengeStamp } from './vfx/ChallengeStamp';
+import { fireRoundConfetti, fireWinConfetti } from '@/lib/confetti';
 
 interface OnlineGameBoardProps {
   multiplayer: MultiplayerContextType;
@@ -35,6 +37,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
 
   const [selectedCards, setSelectedCards] = useState<CardType[]>([]);
   const [showChallengeResult, setShowChallengeResult] = useState(false);
+  const [showStamp, setShowStamp] = useState(false);
   const [showLog, setShowLog] = useState(false);
 
   useEffect(() => {
@@ -62,10 +65,20 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
   useEffect(() => {
     if (gameState?.challenge_result) {
       setShowChallengeResult(true);
-      const timer = setTimeout(() => setShowChallengeResult(false), 2000);
+      setShowStamp(true);
+      const timer = setTimeout(() => {
+        setShowChallengeResult(false);
+        setShowStamp(false);
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [gameState?.challenge_result]);
+
+  useEffect(() => {
+    if (gameState?.game_phase === 'roundEnd') {
+      fireRoundConfetti();
+    }
+  }, [gameState?.game_phase]);
 
   const handleCardSelect = useCallback((card: CardType) => {
     if (!isMyTurn) return;
@@ -316,6 +329,20 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
               </div>
             </div>
           )}
+
+          {/* Decorative Deck */}
+          <div className={cn(
+            "absolute top-0 pointer-events-none hidden md:block opacity-40",
+            isMobile ? "-right-16" : "-right-24"
+          )}>
+            <div className="relative">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="absolute" style={{ top: -i*2, left: i*1 }}>
+                  <CardBack size={isMobile ? 'xs' : 'sm'} />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -360,6 +387,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
           </div>
         </div>
       </div>
+      <ChallengeStamp isVisible={showStamp} onComplete={() => setShowStamp(false)} />
     </div>
   );
 }
