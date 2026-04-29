@@ -422,6 +422,7 @@ export function useMultiplayer(): MultiplayerContextType {
         last_played_cards: cards as any,
         current_player: nextPlayer,
         consecutive_passes: 0,
+        challenge_result: null, // Clear challenge result when new cards are played
         log: newLog as any
       })
       .eq('room_id', room.id);
@@ -583,6 +584,7 @@ export function useMultiplayer(): MultiplayerContextType {
         .update({
           consecutive_passes: newConsecutivePasses,
           current_player: nextPlayer,
+          challenge_result: null, // Clear challenge result on pass too
           log: [...gameState.log, `${myPlayer.nickname} passed`] as any
         })
         .eq('room_id', room.id);

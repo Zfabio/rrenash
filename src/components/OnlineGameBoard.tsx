@@ -36,9 +36,9 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
   const { room, players, gameState, myPlayer, isMyTurn, isHost, playCards, challenge, pass, nextRound, leaveRoom } = multiplayer;
 
   const [selectedCards, setSelectedCards] = useState<CardType[]>([]);
-  const [showChallengeResult, setShowChallengeResult] = useState(false);
   const [showStamp, setShowStamp] = useState(false);
   const [showLog, setShowLog] = useState(false);
+  const lastChallengeTimestamp = useRef<number>(0);
 
   useEffect(() => {
     if (gameState?.game_phase === 'playing' && prevPlayerRef.current !== null && prevPlayerRef.current !== gameState.current_player) {
@@ -63,7 +63,8 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
   }, [gameState?.pile?.length, playCardPlay]);
 
   useEffect(() => {
-    if (gameState?.challenge_result) {
+    if (gameState?.challenge_result && gameState.challenge_result.timestamp !== lastChallengeTimestamp.current) {
+      lastChallengeTimestamp.current = gameState.challenge_result.timestamp || Date.now();
       setShowChallengeResult(true);
       setShowStamp(true);
       const timer = setTimeout(() => {
@@ -133,6 +134,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
       hand: p.hand,
       score: p.score,
       finishPosition: finishedIndex !== -1 ? finishedIndex + 1 : undefined,
+      handSize: (p as any).hand_size || p.hand.length,
       isHuman: p.session_id === myPlayer.session_id,
       isThinking: gameState.current_player === p.player_order && p.session_id !== myPlayer.session_id,
     };
@@ -227,7 +229,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
           <div key={opp.id} className={posClass}>
             <PlayerAvatar
               name={opp.name}
-              cardCount={opp.hand.length}
+              cardCount={opp.handSize || 0}
               score={opp.score}
               isCurrentPlayer={gameState.current_player === opp.id}
               isThinking={opp.isThinking}
