@@ -439,7 +439,7 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
           <Button variant="ghost" size="sm" onClick={onBackToSetup} className="text-foreground/70 hover:text-foreground">
             {t.newGame}
           </Button>
-          <span className="font-bold text-foreground tracking-wide text-lg">RRENASH</span>
+          <span className="font-bold font-title text-foreground tracking-wide text-xl">RRENASH</span>
         </div>
         <div className="flex items-center gap-2">
           <LanguageToggle />

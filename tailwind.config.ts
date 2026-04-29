@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         sans: ["Lora", "serif"],
         serif: ["Playfair Display", "serif"],
+        title: ["'IM Fell English'", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",

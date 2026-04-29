@@ -93,10 +93,10 @@ export function GameSetup({ onStartGame, onOnlinePlay }: GameSetupProps) {
 
       {/* Title */}
       <div className="mb-16 text-center">
-        <h1 className="text-5xl md:text-7xl font-bold text-primary tracking-wider drop-shadow-md">
+        <h1 className="text-6xl md:text-8xl font-bold font-title text-foreground tracking-wider drop-shadow-md">
           RRENASH
         </h1>
-        <p className="text-primary/70 mt-3 text-sm md:text-base font-medium">
+        <p className="text-foreground/70 mt-3 text-sm md:text-base font-medium">
           {t.gameSubtitle}
         </p>
       </div>

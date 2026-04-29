@@ -63,7 +63,7 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
       minPlayers: 'Duhen të paktën 2 lojtarë',
       host: 'Nikoqiri',
       connected: 'I lidhur',
-      maxPlayers: 'Lojtarë Maks',
+      maxPlayers: 'Nr. i lojtarëve',
       rounds: 'Raunde'
     }
   };
@@ -101,7 +101,7 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
               </Button>
               <LanguageToggle />
             </div>
-            <CardTitle className="text-3xl font-serif text-primary tracking-wider">{t.gameTitle}</CardTitle>
+            <CardTitle className="text-4xl font-bold font-title text-foreground tracking-wider drop-shadow-sm">{t.gameTitle}</CardTitle>
             <CardDescription>{txt.waitingForPlayers}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -179,7 +179,7 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
               </Button>
               <LanguageToggle />
             </div>
-            <CardTitle className="text-3xl font-serif text-primary tracking-wider">{t.gameTitle}</CardTitle>
+            <CardTitle className="text-4xl font-bold font-title text-foreground tracking-wider drop-shadow-sm">{t.gameTitle}</CardTitle>
             <CardDescription>{txt.onlinePlay}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
