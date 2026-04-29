@@ -87,7 +87,7 @@ export function PlayingCard({
     >
       {/* Top-left corner */}
       <div className={cn('absolute flex flex-col items-center leading-none', cfg.cornerGap, cfg.corner)}>
-        <span className={cn('font-bold', cfg.rank, colorClass)}>{card.rank}</span>
+        <span className={cn('font-bold font-card', cfg.rank, colorClass)}>{card.rank}</span>
         <span className={cn(cfg.suit, colorClass)}>{card.suit}</span>
       </div>
 
@@ -98,7 +98,7 @@ export function PlayingCard({
 
       {/* Bottom-right corner (rotated) */}
       <div className={cn('absolute flex flex-col items-center leading-none rotate-180', cfg.cornerGap, cfg.cornerB)}>
-        <span className={cn('font-bold', cfg.rank, colorClass)}>{card.rank}</span>
+        <span className={cn('font-bold font-card', cfg.rank, colorClass)}>{card.rank}</span>
         <span className={cn(cfg.suit, colorClass)}>{card.suit}</span>
       </div>
     </button>

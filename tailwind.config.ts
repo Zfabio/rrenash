@@ -17,6 +17,7 @@ export default {
         sans: ["'IM Fell DW Pica'", "serif"],
         serif: ["'IM Fell English'", "serif"],
         title: ["'IM Fell English'", "serif"],
+        card: ["'Averia Serif Libre'", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",

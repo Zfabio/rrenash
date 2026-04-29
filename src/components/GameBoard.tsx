@@ -489,10 +489,10 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
                   {claimer?.name || 'Unknown'}
                 </span>
               </div>
-              <div className="flex items-center justify-center font-bold text-primary text-2xl gap-2 mt-1">
+              <div className="flex items-center justify-center font-bold text-primary text-2xl gap-2 mt-1 font-card">
                 <span>{gameState.claim.count}×</span>
                 <div className="flex items-center justify-center bg-white text-gray-900 rounded-md shadow-sm border border-gray-300 leading-none w-8 h-11 text-lg relative">
-                  <span className="font-bold">{gameState.claim.rank}</span>
+                  <span className="font-bold font-card">{gameState.claim.rank}</span>
                   <div className="absolute inset-[2px] border border-gray-200/60 rounded-sm pointer-events-none" />
                 </div>
               </div>

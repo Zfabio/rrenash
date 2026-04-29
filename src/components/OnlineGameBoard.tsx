@@ -249,7 +249,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
                 </span>
               </div>
               <div className={cn(
-                'flex items-center justify-center font-bold text-primary mt-1',
+                'flex items-center justify-center font-bold text-primary mt-1 font-card',
                 isMobile ? 'text-lg gap-1.5' : 'text-2xl gap-2',
               )}>
                 <span>{gameState.claim.count}×</span>
@@ -257,7 +257,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
                   'flex items-center justify-center bg-white text-gray-900 rounded-md shadow-sm border border-gray-300 leading-none relative',
                   isMobile ? 'w-6 h-8 text-sm' : 'w-8 h-11 text-lg'
                 )}>
-                  <span className="font-bold">{gameState.claim.rank}</span>
+                  <span className="font-bold font-card">{gameState.claim.rank}</span>
                   <div className="absolute inset-[2px] border border-gray-200/60 rounded-sm pointer-events-none" />
                 </div>
               </div>
