@@ -59,6 +59,11 @@ interface Translations {
   gameStarted: string;
   youPlayFirst: string;
   
+  // UI Elements
+  pileCount: string;
+  playACard: string;
+  turnOf: string;
+  
   // Online
   playOnline: string;
 }
@@ -119,6 +124,11 @@ const translations: Record<Language, Translations> = {
     finishedHand: 'finished their hand!',
     gameStarted: 'Game started!',
     youPlayFirst: 'You play first.',
+    
+    pileCount: 'Pile',
+    playACard: 'PLAY A CARD',
+    turnOf: 'Turn: ',
+    
     playOnline: 'Play Online'
   },
   sq: {
@@ -150,7 +160,7 @@ const translations: Record<Language, Translations> = {
     selectRank: 'Zgjidh numrin',
     play: 'Luaj',
     challenge: 'Rren!',
-    pass: 'Kalo',
+    pass: 'Pas',
     mixedCardsWarning: 'Letra të përziera - kjo është blof!',
     selectCardsFirst: 'Zgjidh letrat për të luajtur',
     
@@ -176,6 +186,11 @@ const translations: Record<Language, Translations> = {
     finishedHand: 'mbaroi dorën!',
     gameStarted: 'Loja filloi!',
     youPlayFirst: 'Ti luan i pari.',
+    
+    pileCount: 'Grumbulli',
+    playACard: 'LUAJ NJË LETËR',
+    turnOf: 'Radha e ',
+    
     playOnline: 'Luaj Online'
   }
 };

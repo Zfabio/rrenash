@@ -25,6 +25,7 @@ function getOpponentPositions(count: number): Array<'top' | 'left' | 'right'> {
 }
 
 export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) {
+  const { t } = useLanguage();
   const { playYourTurn, playWin, playSelect, playCardPlay } = useSound();
   const isMobile = useIsMobile();
   const prevPlayerRef = useRef<number | null>(null);
@@ -179,7 +180,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
             <MessageSquare className="h-3.5 w-3.5" />
           </button>
           <div className="pile-badge">
-            Pile: {gameState.pile.length}
+            {t.pileCount}: {gameState.pile.length}
           </div>
         </div>
       </div>
@@ -248,10 +249,17 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
                 </span>
               </div>
               <div className={cn(
-                'font-bold text-primary',
-                isMobile ? 'text-lg' : 'text-2xl',
+                'flex items-center justify-center font-bold text-primary mt-1',
+                isMobile ? 'text-lg gap-1.5' : 'text-2xl gap-2',
               )}>
-                {gameState.claim.count}× {gameState.claim.rank}
+                <span>{gameState.claim.count}×</span>
+                <div className={cn(
+                  'flex items-center justify-center bg-white text-gray-900 rounded-md shadow-sm border border-gray-300 leading-none relative',
+                  isMobile ? 'w-6 h-8 text-sm' : 'w-8 h-11 text-lg'
+                )}>
+                  <span className="font-bold">{gameState.claim.rank}</span>
+                  <div className="absolute inset-[2px] border border-gray-200/60 rounded-sm pointer-events-none" />
+                </div>
               </div>
             </div>
           );
@@ -267,7 +275,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
               'text-foreground/30 font-semibold uppercase tracking-wider',
               isMobile ? 'text-xs' : 'text-sm',
             )}>
-              PLAY A CARD
+              {t.playACard}
             </div>
           ) : showChallengeResult && gameState.challenge_result ? (
             <div className={cn(
@@ -347,7 +355,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
             isMobile ? 'text-xs' : 'text-sm',
           )}>
             <span className="text-foreground font-medium">
-              {isMyTurn ? "Your Turn" : `${gamePlayers.find(p => p.id === gameState.current_player)?.name || ''}'s Turn`}
+              {isMyTurn ? t.yourTurn : `${t.turnOf}${gamePlayers.find(p => p.id === gameState.current_player)?.name || ''}`}
             </span>
           </div>
         </div>

@@ -444,7 +444,7 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
         <div className="flex items-center gap-2">
           <LanguageToggle />
           <div className="pile-badge">
-            Pile: {gameState.pile.length}
+            {t.pileCount}: {gameState.pile.length}
           </div>
         </div>
       </div>
@@ -489,8 +489,12 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
                   {claimer?.name || 'Unknown'}
                 </span>
               </div>
-              <div className="font-bold text-primary text-2xl">
-                {gameState.claim.count}× {gameState.claim.rank}
+              <div className="flex items-center justify-center font-bold text-primary text-2xl gap-2 mt-1">
+                <span>{gameState.claim.count}×</span>
+                <div className="flex items-center justify-center bg-white text-gray-900 rounded-md shadow-sm border border-gray-300 leading-none w-8 h-11 text-lg relative">
+                  <span className="font-bold">{gameState.claim.rank}</span>
+                  <div className="absolute inset-[2px] border border-gray-200/60 rounded-sm pointer-events-none" />
+                </div>
               </div>
             </div>
           );
@@ -499,7 +503,7 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
         <div className="flex items-center justify-center min-h-[74px]">
           {gameState.pile.length === 0 && gameState.lastPlayedCards.length === 0 ? (
             <div className="text-foreground/30 font-semibold uppercase tracking-wider text-sm">
-              PLAY A CARD
+              {t.playACard}
             </div>
           ) : showChallengeResult && gameState.challengeResult ? (
             <div className={cn(
@@ -556,7 +560,7 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
         <div className="bottom-bar w-full flex items-center justify-center py-3">
           <div className="bg-card/60 rounded-lg px-6 py-1.5 text-center border border-border/50 text-sm">
             <span className="text-foreground font-medium">
-              {isHumanTurn ? "Your Turn" : `${currentPlayer.name}'s Turn`}
+              {isHumanTurn ? t.yourTurn : `${t.turnOf}${currentPlayer.name}`}
             </span>
           </div>
         </div>
