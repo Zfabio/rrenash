@@ -184,7 +184,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
         />
       )}
 
-      {/* === TOP BAR (Styled like footer) === */}
+      {/* === TOP BAR === */}
       <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-3 bg-card/60 backdrop-blur-md border-b border-border/50">
         {/* Left: Title */}
         <div className="flex items-center gap-3">
@@ -236,10 +236,10 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
       {opponents.map((opp, idx) => {
         const pos = opponentPositions[idx];
         const posClass = pos === 'top'
-          ? 'absolute top-20 left-1/2 -translate-x-1/2 z-10'
+          ? 'absolute top-24 left-1/2 -translate-x-1/2 z-10' // Increased top-20 to top-24 for better margin
           : pos === 'left'
-          ? 'absolute left-4 top-1/2 -translate-y-1/2 z-10'
-          : 'absolute right-4 top-1/2 -translate-y-1/2 z-10';
+          ? 'absolute left-6 top-[45%] -translate-y-1/2 z-10' // Increased left margin and adjusted top
+          : 'absolute right-6 top-[45%] -translate-y-1/2 z-10'; // Increased right margin and adjusted top
 
         return (
           <div key={opp.id} className={posClass}>
@@ -260,7 +260,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
       })}
 
       {/* === CENTER PLAY AREA === */}
-      <div className="absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-1">
+      <div className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-1">
         {/* Claim display */}
         {gameState.claim && (() => {
           const claimer = gamePlayers.find(p => p.id === gameState.claim!.playerId);
@@ -349,8 +349,6 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
               </div>
             </div>
           )}
-
-          {/* Removed Decorative Deck */}
         </div>
       </div>
 
@@ -382,7 +380,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
 
         {/* Bottom bar with my avatar only */}
         <div className={cn(
-          'bottom-bar w-full flex items-center justify-center relative min-h-[60px]',
+          'bottom-bar w-full flex items-center justify-center relative min-h-[70px]', // Increased height for safe margins
           isMobile ? 'py-2' : 'py-3',
         )}>
           <div className="absolute inset-0 flex items-center justify-center">
@@ -398,7 +396,6 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
               language={language}
             />
           </div>
-          {/* Removed Your Turn badge */}
         </div>
       </div>
     </div>

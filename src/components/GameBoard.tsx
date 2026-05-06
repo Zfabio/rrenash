@@ -9,6 +9,8 @@ import { PlayerAvatar } from './PlayerAvatar';
 import { MyHand } from './MyHand';
 import { PlayingCard, CardBack } from './PlayingCard';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { LogOut } from 'lucide-react';
 import { 
   initializeGame, 
   getNextPlayer, 
@@ -26,10 +28,12 @@ interface GameBoardProps {
 }
 
 export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardProps) {
-  const { t } = useLanguage();
-  const { playYourTurn, playWin, playSelect, playCardPlay } = useSound();
+  const { t, language } = useLanguage();
+  const { playYourTurn, playWin, playSelect, playCardPlay, playTick } = useSound();
+  const isMobile = useIsMobile();
   const prevPlayerRef = useRef<number | null>(null);
   const prevPileRef = useRef<number>(0);
+  const turnStartTimeRef = useRef<number>(0);
   
   const [gameState, setGameState] = useState<GameState>(() => 
     initializeGame(numPlayers, totalRounds)
@@ -39,6 +43,26 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
 
   const currentPlayer = gameState.players[gameState.currentPlayer];
   const isHumanTurn = currentPlayer?.isHuman;
+
+  // Reset turn start time
+  useEffect(() => {
+    if (gameState.gamePhase === 'playing') {
+      turnStartTimeRef.current = Date.now();
+    }
+  }, [gameState.currentPlayer, gameState.gamePhase]);
+
+  // Ticking sound effect - only for human turn, after 5 seconds
+  useEffect(() => {
+    if (gameState.gamePhase === 'playing' && isHumanTurn) {
+      const interval = setInterval(() => {
+        const elapsed = Date.now() - turnStartTimeRef.current;
+        if (elapsed > 5000) {
+          playTick();
+        }
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [isHumanTurn, gameState.gamePhase, playTick]);
   
   // Play sound for turn changes
   useEffect(() => {
@@ -46,7 +70,7 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
       if (isHumanTurn) {
         playYourTurn();
       } else {
-        playSelect(); // Tiny tick sound for opponent turn
+        playSelect();
       }
     }
     prevPlayerRef.current = gameState.currentPlayer;
@@ -60,30 +84,20 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
     prevPileRef.current = gameState.pile.length;
   }, [gameState.pile.length, playCardPlay]);
 
-  // Handle Round/Game End effects
-  useEffect(() => {
-    if (gameState.gamePhase === 'roundEnd') {
-      // fireRoundConfetti(); // Removed
-    }
-  }, [gameState.gamePhase]);
-
-  // Handle card selection - allow any cards to be selected for bluffing
+  // Handle card selection
   const handleCardSelect = useCallback((card: CardType) => {
+    if (!isHumanTurn) return;
     playSelect();
     setSelectedCards(prev => {
       const isSelected = prev.some(c => c.id === card.id);
-      if (isSelected) {
-        return prev.filter(c => c.id !== card.id);
-      }
+      if (isSelected) return prev.filter(c => c.id !== card.id);
       return [...prev, card];
     });
-  }, [playSelect]);
+  }, [isHumanTurn, playSelect]);
 
   // Play cards
   const handlePlay = useCallback((claimedRank: Rank) => {
     if (selectedCards.length === 0) return;
-
-    // No longer require same rank - mixed cards allowed for bluffing
 
     setGameState(prev => {
       const player = prev.players[prev.currentPlayer];
@@ -107,7 +121,6 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
       const logs = [...prev.log, playedLog];
       const newFinished = [...(prev.finishedPlayers || [])];
 
-      // Check if player finished
       if (newHand.length === 0 && !newFinished.includes(prev.currentPlayer)) {
         const position = newFinished.length + 1;
         newFinished.push(prev.currentPlayer);
@@ -118,7 +131,6 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
         logs.push(`🎉 ${player.name} finished ${position === 1 ? '1st' : position === 2 ? '2nd' : '3rd'}! (+${points} pts)`);
       }
 
-      // Check if round should end (only 1 active player left)
       const activePlayers = newPlayers.filter((p, idx) => p.hand.length > 0 && !newFinished.includes(idx));
       if (activePlayers.length <= 1) {
         return {
@@ -166,18 +178,17 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
         challenger: challengerId,
         challenged: challengedPlayerId,
         wasBluff,
-        revealedCards: prev.lastPlayedCards
+        revealedCards: prev.lastPlayedCards,
+        timestamp: Date.now()
       },
       log: [...prev.log, `🔥 ${challengerName} challenged ${challengedName}!`]
     }));
 
     setShowChallengeResult(true);
 
-    // Process challenge result after delay
     setTimeout(() => {
       setGameState(prev => {
         const loserIdx = wasBluff ? challengedPlayerId : challengerId;
-        // If the loser was a finished player, remove them from finished (they got cards back)
         const newFinished = [...(prev.finishedPlayers || [])].filter(id => id !== loserIdx);
         const newPlayers = prev.players.map((p, idx) => {
           if (idx === loserIdx) {
@@ -206,7 +217,7 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
     }, 2000);
   }, [gameState]);
 
-  // Pass - track consecutive passes for discard rule
+  // Pass
   const handlePass = useCallback(() => {
     setGameState(prev => {
       const newConsecutivePasses = (prev.consecutivePasses || 0) + 1;
@@ -241,7 +252,6 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
 
     const aiPlayer = currentPlayer;
     
-    // Set thinking state
     setGameState(prev => ({
       ...prev,
       players: prev.players.map((p, idx) => 
@@ -249,66 +259,31 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
       )
     }));
 
-    const thinkTime = 1000 + Math.random() * 1500;
+    const thinkTime = 1500 + Math.random() * 1000;
 
     const timeout = setTimeout(() => {
-      // Decide whether to challenge first
       if (gameState.claim && gameState.lastPlayedCards.length > 0) {
-        const shouldChallenge = aiShouldChallenge(
-          gameState.lastPlayedCards.length,
-          gameState.claim.rank,
-          aiPlayer.hand
-        );
-
-        if (shouldChallenge) {
+        if (aiShouldChallenge(gameState.lastPlayedCards.length, gameState.claim.rank, aiPlayer.hand)) {
           handleChallenge();
           return;
         }
       }
 
-      // Play cards
       const { cards, claimedRank } = aiSelectCards(aiPlayer.hand, gameState.claim);
 
       if (cards.length === 0) {
-        // Pass - check for full rotation
-        setGameState(prev => {
-          const newConsecutivePasses = (prev.consecutivePasses || 0) + 1;
-          const activeCount = prev.players.filter((p, idx) => p.hand.length > 0 && !(prev.finishedPlayers || []).includes(idx)).length;
-          const allPassed = newConsecutivePasses >= activeCount;
-          
-          if (allPassed && prev.pile.length > 0) {
-            return {
-              ...prev,
-              players: prev.players.map((p, idx) => 
-                idx === prev.currentPlayer ? { ...p, isThinking: false } : p
-              ),
-              pile: [],
-              claim: null,
-              lastPlayedCards: [],
-              consecutivePasses: 0,
-              currentPlayer: getNextPlayer(prev.currentPlayer, prev.players.length, prev.finishedPlayers || []),
-              log: [...prev.log, `${aiPlayer.name} passed`, `🗑️ All players passed - pile discarded!`]
-            };
-          }
-          
-          return {
-            ...prev,
-            players: prev.players.map((p, idx) => 
-              idx === prev.currentPlayer ? { ...p, isThinking: false } : p
-            ),
-            consecutivePasses: newConsecutivePasses,
-            currentPlayer: getNextPlayer(prev.currentPlayer, prev.players.length, prev.finishedPlayers || []),
-            log: [...prev.log, `${aiPlayer.name} passed`]
-          };
-        });
+        handlePass();
+        setGameState(prev => ({
+          ...prev,
+          players: prev.players.map((p, idx) => 
+            idx === prev.currentPlayer ? { ...p, isThinking: false } : p
+          )
+        }));
       } else {
-        // Play
         setGameState(prev => {
           const newHand = aiPlayer.hand.filter(c => !cards.some(pc => pc.id === c.id));
           let newPlayers = prev.players.map((p, idx) => 
-            idx === prev.currentPlayer 
-              ? { ...p, hand: newHand, isThinking: false }
-              : p
+            idx === prev.currentPlayer ? { ...p, hand: newHand, isThinking: false } : p
           );
 
           const newClaim = {
@@ -362,42 +337,34 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
     }, thinkTime);
 
     return () => clearTimeout(timeout);
-  }, [gameState.currentPlayer, gameState.gamePhase, isHumanTurn, showChallengeResult, currentPlayer, gameState.claim, gameState.lastPlayedCards.length, handleChallenge]);
+  }, [gameState.currentPlayer, gameState.gamePhase, isHumanTurn, showChallengeResult, currentPlayer, gameState.claim, gameState.lastPlayedCards.length, handleChallenge, handlePass]);
 
-  // New round
   const handleNewRound = useCallback(() => {
     playWin();
     setGameState(prev => {
       const newRound = prev.currentRound + 1;
-      if (newRound > prev.totalRounds) {
-        return { ...prev, gamePhase: 'gameOver' };
-      }
-      return {
-        ...initializeGame(numPlayers, totalRounds),
-        players: prev.players.map(p => ({ ...p, hand: [] })),
-        currentRound: newRound
-      };
-    });
-    // Reinitialize with scores preserved
-    setGameState(prev => {
+      if (newRound > prev.totalRounds) return { ...prev, gamePhase: 'gameOver' };
+      
       const scores = prev.players.map(p => p.score);
       const newState = initializeGame(numPlayers, totalRounds);
       return {
         ...newState,
-        currentRound: prev.currentRound,
+        currentRound: newRound,
         players: newState.players.map((p, i) => ({ ...p, score: scores[i] || 0 }))
       };
     });
     setSelectedCards([]);
   }, [numPlayers, totalRounds, playWin]);
 
-  // Determine valid actions - allow mixed ranks now
-  const canPlay = isHumanTurn && selectedCards.length > 0 && gameState.gamePhase === 'playing';
-  const canChallenge = isHumanTurn && gameState.claim !== null && 
+  const myPlayer = gameState.players[0];
+  const isSpectator = (gameState.finishedPlayers || []).includes(0);
+
+  const canPlay = isHumanTurn && !isSpectator && selectedCards.length > 0 && gameState.gamePhase === 'playing';
+  const canChallenge = isHumanTurn && !isSpectator && gameState.claim !== null && 
     gameState.lastPlayedCards.length > 0 &&
-    gameState.claim.playerId !== gameState.currentPlayer &&
+    gameState.claim.playerId !== 0 &&
     gameState.gamePhase === 'playing';
-  const canPass = isHumanTurn && gameState.claim !== null && gameState.gamePhase === 'playing';
+  const canPass = isHumanTurn && !isSpectator && gameState.claim !== null && gameState.gamePhase === 'playing';
 
   const opponents = gameState.players.filter(p => !p.isHuman);
   const getOpponentPositions = (count: number): Array<'top' | 'left' | 'right'> => {
@@ -423,15 +390,6 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
                   <span className="text-primary font-bold">+{calculateRoundPoints(idx + 1)}</span>
                 </div>
               ))}
-              {/* Show last place (player still holding cards) */}
-              {gameState.players
-                .filter((_, idx) => !(gameState.finishedPlayers || []).includes(idx))
-                .map(p => (
-                  <div key={p.id} className="flex items-center justify-between px-4 py-2 rounded-lg bg-muted/30">
-                    <span className="text-foreground/60">{p.name}</span>
-                    <span className="text-muted-foreground">+0</span>
-                  </div>
-                ))}
             </div>
             <Button onClick={handleNewRound} size="lg" className="bg-primary text-primary-foreground">
               {t.nextRound}
@@ -441,33 +399,39 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
       )}
 
       {/* === TOP BAR === */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-3">
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-3 bg-card/60 backdrop-blur-md border-b border-border/50">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={onBackToSetup} className="text-foreground/70 hover:text-foreground">
-            {t.newGame}
-          </Button>
-          <span className="font-bold font-title text-foreground tracking-wide text-xl">RRENASH</span>
+          <button onClick={onBackToSetup} className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-foreground/20 transition-colors">
+            <LogOut className="h-3.5 w-3.5" />
+          </button>
+          <span className={cn(
+            'font-bold font-title text-foreground tracking-wide',
+            isMobile ? 'text-lg' : 'text-xl',
+          )}>
+            RRENASH
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <LanguageToggle />
-          <div className="pile-badge">
+          <div className="pile-badge bg-primary/20 border-primary/30 text-primary font-bold">
             {t.pileCount}: {gameState.pile.length}
           </div>
         </div>
       </div>
 
-      {/* === OPPONENTS at top/left/right === */}
+      {/* === OPPONENTS === */}
       {opponents.map((opp, idx) => {
         const pos = opponentPositions[idx];
         const posClass = pos === 'top'
-          ? 'absolute top-14 left-1/2 -translate-x-1/2 z-10'
+          ? 'absolute top-24 left-1/2 -translate-x-1/2 z-10'
           : pos === 'left'
-          ? 'absolute left-4 top-1/2 -translate-y-1/2 z-10'
-          : 'absolute right-4 top-1/2 -translate-y-1/2 z-10';
+          ? 'absolute left-6 top-[45%] -translate-y-1/2 z-10'
+          : 'absolute right-6 top-[45%] -translate-y-1/2 z-10';
 
         return (
           <div key={opp.id} className={posClass}>
             <PlayerAvatar
+              playerId={opp.id}
               name={opp.name}
               cardCount={opp.hand.length}
               score={opp.score}
@@ -475,13 +439,15 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
               isThinking={opp.isThinking}
               position={pos}
               finishPosition={(gameState.finishedPlayers || []).indexOf(opp.id) !== -1 ? (gameState.finishedPlayers || []).indexOf(opp.id) + 1 : undefined}
+              challengeResult={showChallengeResult ? gameState.challengeResult : undefined}
+              language={language}
             />
           </div>
         );
       })}
 
       {/* === CENTER PLAY AREA === */}
-      <div className="absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-1">
+      <div className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-1">
         {gameState.claim && (() => {
           const claimer = gameState.players.find(p => p.id === gameState.claim!.playerId);
           return (
@@ -507,18 +473,19 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
           );
         })()}
 
-        <div className="flex items-center justify-center min-h-[74px]">
+        <div className={cn(
+          'flex items-center justify-center',
+          isMobile ? 'min-h-[54px]' : 'min-h-[74px]',
+        )}>
           {gameState.pile.length === 0 && gameState.lastPlayedCards.length === 0 ? (
-            <div className="text-foreground/30 font-semibold uppercase tracking-wider text-sm">
-              {t.playACard}
-            </div>
+            <div className="text-foreground/30 font-semibold uppercase tracking-wider text-sm" />
           ) : showChallengeResult && gameState.challengeResult ? (
             <div className={cn(
               'flex gap-1 p-2 rounded-xl',
               gameState.challengeResult.wasBluff ? 'bg-destructive/20' : 'bg-green-700/40',
             )}>
               {gameState.challengeResult.revealedCards.map((card, idx) => (
-                <PlayingCard key={card.id} card={card} size="sm" animationDelay={idx * 100} />
+                <PlayingCard key={card.id} card={card} size="sm" />
               ))}
             </div>
           ) : gameState.lastPlayedCards.length > 0 ? (
@@ -540,21 +507,10 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
               <div className="relative z-10"><CardBack size="sm" /></div>
             </div>
           )}
-          
-          {/* Decorative Deck */}
-          <div className="absolute -right-24 top-0 pointer-events-none hidden md:block">
-            <div className="relative opacity-40">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="absolute" style={{ top: -i*2, left: i*1 }}>
-                  <CardBack size="sm" />
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* === BOTTOM: Controls + Hand + Turn bar === */}
+      {/* === BOTTOM: Controls + Hand === */}
       <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center gap-2">
         <GameControls
           selectedCards={selectedCards}
@@ -568,22 +524,29 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
         />
 
         <MyHand
-          player={gameState.players[0]}
+          player={myPlayer}
           isCurrentPlayer={gameState.currentPlayer === 0}
           selectedCards={selectedCards}
           onCardSelect={handleCardSelect}
-          disabled={!isHumanTurn || gameState.gamePhase !== 'playing'}
+          disabled={!isHumanTurn || gameState.gamePhase !== 'playing' || isSpectator}
         />
 
-        <div className="bottom-bar w-full flex items-center justify-center py-3">
-          <div className="bg-card/60 rounded-lg px-6 py-1.5 text-center border border-border/50 text-sm">
-            <span className="text-foreground font-medium">
-              {isHumanTurn ? t.yourTurn : `${t.turnOf}${currentPlayer.name}`}
-            </span>
+        <div className="bottom-bar w-full flex items-center justify-center relative min-h-[70px]">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <PlayerAvatar
+              playerId={0}
+              name={myPlayer.name}
+              cardCount={myPlayer.hand.length}
+              score={myPlayer.score}
+              isCurrentPlayer={gameState.currentPlayer === 0}
+              position="top"
+              finishPosition={(gameState.finishedPlayers || []).includes(0) ? (gameState.finishedPlayers || []).indexOf(0) + 1 : undefined}
+              challengeResult={showChallengeResult ? gameState.challengeResult : undefined}
+              language={language}
+            />
           </div>
         </div>
       </div>
-
     </div>
   );
 }
