@@ -12,6 +12,7 @@ interface PlayerAvatarProps {
   finishPosition?: number;
   challengeResult?: OnlineGameState['challenge_result'];
   playerId: number;
+  language?: 'en' | 'sq';
 }
 
 function getInitial(name: string): string {
@@ -27,7 +28,8 @@ export function PlayerAvatar({
   position,
   finishPosition,
   challengeResult,
-  playerId
+  playerId,
+  language = 'en'
 }: PlayerAvatarProps) {
   const isMobile = useIsMobile();
 
@@ -35,13 +37,21 @@ export function PlayerAvatar({
   const wasChallenger = challengeResult?.challenger === playerId;
   const wasChallenged = challengeResult?.challenged === playerId;
   
-  // Show result label
+  // Show result label with translations
   let resultLabel = null;
   if (challengeResult) {
     if (wasChallenger) {
-      resultLabel = challengeResult.wasBluff ? "Rren Correct! ✅" : "Failed Challenge ❌";
+      if (challengeResult.wasBluff) {
+        resultLabel = language === 'sq' ? "Rren e Saktë! ✅" : "Rren Correct! ✅";
+      } else {
+        resultLabel = language === 'sq' ? "Sfida dështoi ❌" : "Failed Challenge ❌";
+      }
     } else if (wasChallenged) {
-      resultLabel = challengeResult.wasBluff ? "Caught Bluffing! 🎭" : "Was Honest! ✨";
+      if (challengeResult.wasBluff) {
+        resultLabel = language === 'sq' ? "U kap duke rrejt! 🎭" : "Caught Bluffing! 🎭";
+      } else {
+        resultLabel = language === 'sq' ? "Ishte i Saktë! ✨" : "Was Honest! ✨";
+      }
     }
   }
 

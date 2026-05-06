@@ -25,11 +25,12 @@ function getOpponentPositions(count: number): Array<'top' | 'left' | 'right'> {
 }
 
 export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { playYourTurn, playWin, playSelect, playCardPlay, playTick } = useSound();
   const isMobile = useIsMobile();
   const prevPlayerRef = useRef<number | null>(null);
   const prevPileRef = useRef<number>(0);
+  const turnStartTimeRef = useRef<number>(0);
 
   const { room, players, gameState, myPlayer, isMyTurn, isHost, playCards, challenge, pass, nextRound, leaveRoom } = multiplayer;
 
@@ -38,15 +39,25 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
   const [showLog, setShowLog] = useState(false);
   const lastChallengeTimestamp = useRef<number>(0);
 
-  // Ticking sound effect
+  // Reset turn start time when current player changes
   useEffect(() => {
     if (gameState?.game_phase === 'playing' && gameState.current_player !== null) {
+      turnStartTimeRef.current = Date.now();
+    }
+  }, [gameState?.current_player, gameState?.game_phase]);
+
+  // Ticking sound effect - only for the person whose turn it is, after 5 seconds
+  useEffect(() => {
+    if (gameState?.game_phase === 'playing' && isMyTurn) {
       const interval = setInterval(() => {
-        playTick();
+        const elapsed = Date.now() - turnStartTimeRef.current;
+        if (elapsed > 5000) {
+          playTick();
+        }
       }, 1000);
       return () => clearInterval(interval);
     }
-  }, [gameState?.current_player, gameState?.game_phase, playTick]);
+  }, [isMyTurn, gameState?.game_phase, playTick]);
 
   useEffect(() => {
     if (gameState?.game_phase === 'playing' && prevPlayerRef.current !== null && prevPlayerRef.current !== gameState.current_player) {
@@ -239,6 +250,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
               position={pos}
               finishPosition={opp.finishPosition}
               challengeResult={showChallengeResult ? gameState.challenge_result : undefined}
+              language={language}
             />
           </div>
         );
@@ -294,7 +306,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
               'text-foreground/30 font-semibold uppercase tracking-wider',
               isMobile ? 'text-xs' : 'text-sm',
             )}>
-              {t.playACard}
+              {/* Removed playACard text */}
             </div>
           ) : showChallengeResult && gameState.challenge_result ? (
             <div className={cn(
@@ -335,23 +347,11 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
             </div>
           )}
 
-          {/* Decorative Deck */}
-          <div className={cn(
-            "absolute top-0 pointer-events-none hidden md:block opacity-40",
-            isMobile ? "-right-16" : "-right-24"
-          )}>
-            <div className="relative">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="absolute" style={{ top: -i*2, left: i*1 }}>
-                  <CardBack size={isMobile ? 'xs' : 'sm'} />
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* Removed Decorative Deck */}
         </div>
       </div>
 
-      {/* === BOTTOM: Turn info + Controls + Hand === */}
+      {/* === BOTTOM: Controls + Hand === */}
       <div className={cn(
         'absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center',
         isMobile ? 'gap-1' : 'gap-2',
@@ -377,9 +377,9 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
           disabled={!isMyTurn || gameState.game_phase !== 'playing'}
         />
 
-        {/* Bottom bar with turn info */}
+        {/* Bottom bar with my avatar only */}
         <div className={cn(
-          'bottom-bar w-full flex items-center justify-center relative',
+          'bottom-bar w-full flex items-center justify-center relative min-h-[60px]',
           isMobile ? 'py-2' : 'py-3',
         )}>
           <div className="absolute inset-0 flex items-center justify-center">
@@ -392,17 +392,10 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
               position="top" // Not used for layout here
               finishPosition={myGamePlayer.finishPosition}
               challengeResult={showChallengeResult ? gameState.challenge_result : undefined}
+              language={language}
             />
           </div>
-          
-          <div className={cn(
-            'bg-card/60 rounded-lg px-6 py-1.5 text-center border border-border/50 z-20 mt-16',
-            isMobile ? 'text-xs' : 'text-sm',
-          )}>
-            <span className="text-foreground font-medium">
-              {isMyTurn ? t.yourTurn : `${t.turnOf}${gamePlayers.find(p => p.id === gameState.current_player)?.name || ''}`}
-            </span>
-          </div>
+          {/* Removed Your Turn badge */}
         </div>
       </div>
     </div>

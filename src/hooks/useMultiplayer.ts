@@ -170,7 +170,7 @@ export function useMultiplayer(): MultiplayerContextType {
         setPlayers((playersRes.data as unknown[]).map((p: unknown) => ({
           ...(p as Record<string, unknown>),
           hand: Array.isArray((p as Record<string, unknown>).hand) ? ((p as Record<string, unknown>).hand as unknown as Card[]) : []
-        }))) as unknown as GamePlayer[];
+        })) as unknown as GamePlayer[]);
       }
 
       if (stateRes.data) {
