@@ -167,12 +167,36 @@ export function useSound() {
     }
   }, [getAudioContext]);
 
+  // Subtle ticking clock sound
+  const playTick = useCallback(() => {
+    try {
+      const ctx = getAudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.frequency.setValueAtTime(1200, ctx.currentTime);
+      osc.type = 'sine';
+      
+      gain.gain.setValueAtTime(0.02, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+      
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.05);
+    } catch (e) {
+      // Ignore errors
+    }
+  }, [getAudioContext]);
+
   return {
     playCardPlay,
     playChallenge,
     playPass,
     playWin,
     playYourTurn,
-    playSelect
+    playSelect,
+    playTick
   };
 }

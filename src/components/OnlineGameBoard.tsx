@@ -26,7 +26,7 @@ function getOpponentPositions(count: number): Array<'top' | 'left' | 'right'> {
 
 export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) {
   const { t } = useLanguage();
-  const { playYourTurn, playWin, playSelect, playCardPlay } = useSound();
+  const { playYourTurn, playWin, playSelect, playCardPlay, playTick } = useSound();
   const isMobile = useIsMobile();
   const prevPlayerRef = useRef<number | null>(null);
   const prevPileRef = useRef<number>(0);
@@ -37,6 +37,16 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
   const [showChallengeResult, setShowChallengeResult] = useState(false);
   const [showLog, setShowLog] = useState(false);
   const lastChallengeTimestamp = useRef<number>(0);
+
+  // Ticking sound effect
+  useEffect(() => {
+    if (gameState?.game_phase === 'playing' && gameState.current_player !== null) {
+      const interval = setInterval(() => {
+        playTick();
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [gameState?.current_player, gameState?.game_phase, playTick]);
 
   useEffect(() => {
     if (gameState?.game_phase === 'playing' && prevPlayerRef.current !== null && prevPlayerRef.current !== gameState.current_player) {
@@ -72,12 +82,6 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
       return () => clearTimeout(timer);
     }
   }, [gameState?.challenge_result]);
-
-  useEffect(() => {
-    if (gameState?.game_phase === 'roundEnd') {
-      // fireRoundConfetti(); // Removed
-    }
-  }, [gameState?.game_phase]);
 
   const handleCardSelect = useCallback((card: CardType) => {
     if (!isMyTurn) return;
@@ -226,6 +230,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
         return (
           <div key={opp.id} className={posClass}>
             <PlayerAvatar
+              playerId={opp.id}
               name={opp.name}
               cardCount={opp.handSize || 0}
               score={opp.score}
@@ -233,6 +238,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
               isThinking={opp.isThinking}
               position={pos}
               finishPosition={opp.finishPosition}
+              challengeResult={showChallengeResult ? gameState.challenge_result : undefined}
             />
           </div>
         );
@@ -300,7 +306,6 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
                   key={card.id}
                   card={card}
                   size={isMobile ? 'xs' : 'sm'}
-                  animationDelay={idx * 100}
                 />
               ))}
             </div>
@@ -374,11 +379,24 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
 
         {/* Bottom bar with turn info */}
         <div className={cn(
-          'bottom-bar w-full flex items-center justify-center',
+          'bottom-bar w-full flex items-center justify-center relative',
           isMobile ? 'py-2' : 'py-3',
         )}>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <PlayerAvatar
+              playerId={myGamePlayer.id}
+              name={myGamePlayer.name}
+              cardCount={myGamePlayer.handSize || 0}
+              score={myGamePlayer.score}
+              isCurrentPlayer={isMyTurn}
+              position="top" // Not used for layout here
+              finishPosition={myGamePlayer.finishPosition}
+              challengeResult={showChallengeResult ? gameState.challenge_result : undefined}
+            />
+          </div>
+          
           <div className={cn(
-            'bg-card/60 rounded-lg px-6 py-1.5 text-center border border-border/50',
+            'bg-card/60 rounded-lg px-6 py-1.5 text-center border border-border/50 z-20 mt-16',
             isMobile ? 'text-xs' : 'text-sm',
           )}>
             <span className="text-foreground font-medium">

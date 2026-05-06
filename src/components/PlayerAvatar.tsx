@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { OnlineGameState } from '@/types/multiplayer';
 
 interface PlayerAvatarProps {
   name: string;
@@ -9,6 +10,8 @@ interface PlayerAvatarProps {
   isThinking?: boolean;
   position: 'top' | 'left' | 'right' | 'top-left' | 'top-right';
   finishPosition?: number;
+  challengeResult?: OnlineGameState['challenge_result'];
+  playerId: number;
 }
 
 function getInitial(name: string): string {
@@ -22,17 +25,50 @@ export function PlayerAvatar({
   isCurrentPlayer,
   isThinking,
   position,
-  finishPosition
+  finishPosition,
+  challengeResult,
+  playerId
 }: PlayerAvatarProps) {
   const isMobile = useIsMobile();
 
+  // Determine if this player was involved in the last challenge
+  const wasChallenger = challengeResult?.challenger === playerId;
+  const wasChallenged = challengeResult?.challenged === playerId;
+  
+  // Show result label
+  let resultLabel = null;
+  if (challengeResult) {
+    if (wasChallenger) {
+      resultLabel = challengeResult.wasBluff ? "Rren Correct! ✅" : "Failed Challenge ❌";
+    } else if (wasChallenged) {
+      resultLabel = challengeResult.wasBluff ? "Caught Bluffing! 🎭" : "Was Honest! ✨";
+    }
+  }
+
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex flex-col items-center gap-1 relative">
+      {/* Turn indicator glow */}
+      {isCurrentPlayer && (
+        <div className="absolute -inset-2 bg-primary/20 rounded-full blur-xl animate-pulse" />
+      )}
+
+      {/* Bluff Result Label */}
+      {resultLabel && (
+        <div className={cn(
+          "absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1 rounded-full text-[10px] font-bold shadow-lg animate-bounce z-50",
+          (wasChallenger && challengeResult?.wasBluff) || (wasChallenged && !challengeResult?.wasBluff)
+            ? "bg-green-600 text-white"
+            : "bg-destructive text-white"
+        )}>
+          {resultLabel}
+        </div>
+      )}
+
       {/* Gold circle avatar */}
       <div 
         className={cn(
-          'rounded-full bg-primary flex items-center justify-center shadow-lg transition-all',
-          isCurrentPlayer && 'ring-2 ring-white/50 z-10 scale-105',
+          'rounded-full bg-primary flex items-center justify-center shadow-lg transition-all relative',
+          isCurrentPlayer && 'ring-4 ring-primary/40 z-10 scale-110 shadow-[0_0_20px_rgba(234,179,8,0.5)]',
           isMobile ? 'w-9 h-9' : 'w-12 h-12'
         )}
       >
@@ -42,12 +78,17 @@ export function PlayerAvatar({
         )}>
           {getInitial(name)}
         </span>
+        
+        {/* Active turn indicator dot */}
+        {isCurrentPlayer && (
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse" />
+        )}
       </div>
 
       {/* Name label */}
       <div className={cn(
-        'name-label',
-        isCurrentPlayer && 'name-label-active'
+        'name-label transition-colors duration-300',
+        isCurrentPlayer ? 'bg-primary text-primary-foreground px-2 py-0.5 rounded-md text-xs font-bold' : 'text-foreground/70'
       )}>
         {name}
       </div>
@@ -68,7 +109,7 @@ export function PlayerAvatar({
       )}
 
       {/* Thinking indicator */}
-      {isThinking && (
+      {isThinking && !isCurrentPlayer && (
         <span className="text-xs text-foreground/80 animate-bounce">
           💭
         </span>
