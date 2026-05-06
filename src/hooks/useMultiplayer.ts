@@ -582,15 +582,16 @@ export function useMultiplayer(): MultiplayerContextType {
     const allActivePassed = newConsecutivePasses >= activePlayers.length;
 
     if (allActivePassed && gameState.pile.length > 0) {
-      // DON'T discard the pile when everyone passes, just reset passes and allow a fresh claim
+      // Discard the pile when everyone passes
       await supabase
         .from('game_state')
         .update({
+          pile: [], // Discard the pile!
           claim: null,
           last_played_cards: [],
           consecutive_passes: 0,
           current_player: nextPlayer,
-          log: [...gameState.log, `${myPlayer.nickname} passed`, '✨ All players passed - new claim can be made!']
+          log: [...gameState.log, `${myPlayer.nickname} passed`, '✨ All players passed - pile discarded!']
         })
         .eq('room_id', room.id);
     } else {
