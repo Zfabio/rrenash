@@ -58,7 +58,7 @@ export function PlayerAvatar({
   return (
     <div className="flex flex-col items-center gap-1 relative">
       {/* Turn indicator glow */}
-      {isCurrentPlayer && (
+      {isCurrentPlayer && !finishPosition && (
         <div className="absolute -inset-2 bg-primary/20 rounded-full blur-xl animate-pulse" />
       )}
 
@@ -77,8 +77,9 @@ export function PlayerAvatar({
       {/* Gold circle avatar */}
       <div 
         className={cn(
-          'rounded-full bg-primary flex items-center justify-center shadow-lg transition-all relative',
-          isCurrentPlayer && 'ring-4 ring-primary/40 z-10 scale-110 shadow-[0_0_20px_rgba(234,179,8,0.5)]',
+          'rounded-full flex items-center justify-center shadow-lg transition-all relative',
+          finishPosition ? 'bg-green-600' : 'bg-primary',
+          isCurrentPlayer && !finishPosition && 'ring-4 ring-primary/40 z-10 scale-110 shadow-[0_0_20px_rgba(234,179,8,0.5)]',
           isMobile ? 'w-9 h-9' : 'w-12 h-12'
         )}
       >
@@ -86,11 +87,11 @@ export function PlayerAvatar({
           'font-bold text-primary-foreground',
           isMobile ? 'text-sm' : 'text-lg'
         )}>
-          {getInitial(name)}
+          {finishPosition ? '🏆' : getInitial(name)}
         </span>
         
         {/* Active turn indicator dot */}
-        {isCurrentPlayer && (
+        {isCurrentPlayer && !finishPosition && (
           <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse" />
         )}
       </div>
@@ -98,6 +99,7 @@ export function PlayerAvatar({
       {/* Name label */}
       <div className={cn(
         'name-label transition-colors duration-300',
+        finishPosition ? 'bg-green-700 text-white px-2 py-0.5 rounded-md text-[10px] font-bold' :
         isCurrentPlayer ? 'bg-primary text-primary-foreground px-2 py-0.5 rounded-md text-xs font-bold' : 'text-foreground/70'
       )}>
         {name}
@@ -105,21 +107,16 @@ export function PlayerAvatar({
 
       {finishPosition ? (
         <div 
-          className="text-xs font-bold text-primary bg-background/80 rounded-full px-2 py-0.5 border border-primary/30 mt-1 shadow-sm animate-fade-in"
+          className="text-xs font-bold text-green-600 bg-background/80 rounded-full px-2 py-0.5 border border-green-500/30 mt-1 shadow-sm animate-fade-in"
         >
-          {finishPosition === 1 ? '🥇 1st' : finishPosition === 2 ? '🥈 2nd' : '🥉 3rd'}
+          {finishPosition === 1 ? '1st' : finishPosition === 2 ? '2nd' : '3rd'} Place
         </div>
-      ) : (
-        <div 
-          className="flex items-center gap-1 mt-0.5 opacity-80 bg-background/50 rounded-full px-2 py-0.5 text-xs shadow-sm animate-fade-in"
-        >
-          <span>🃏</span>
-          <span className="font-medium text-foreground">{cardCount}</span>
-        </div>
-      )}
+      ) : null}
+
+      {/* Removed card count emoji per user request */}
 
       {/* Thinking indicator */}
-      {isThinking && !isCurrentPlayer && (
+      {isThinking && !isCurrentPlayer && !finishPosition && (
         <span className="text-xs text-foreground/80 animate-bounce">
           💭
         </span>

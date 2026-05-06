@@ -157,13 +157,16 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
   const opponents = gamePlayers.filter(p => !p.isHuman);
   const opponentPositions = getOpponentPositions(opponents.length);
 
-  const canPlay = isMyTurn && selectedCards.length > 0 && gameState.game_phase === 'playing';
-  const canChallenge = isMyTurn &&
+  // SPECTATOR GATING: Disable all buttons if the player has already finished
+  const isSpectator = myGamePlayer.finishPosition !== undefined;
+  
+  const canPlay = isMyTurn && !isSpectator && selectedCards.length > 0 && gameState.game_phase === 'playing';
+  const canChallenge = isMyTurn && !isSpectator &&
     gameState.claim !== null &&
     gameState.last_played_cards.length > 0 &&
     gameState.claim.playerId !== myPlayer.player_order &&
     gameState.game_phase === 'playing';
-  const canPass = isMyTurn && gameState.claim !== null && gameState.game_phase === 'playing';
+  const canPass = isMyTurn && !isSpectator && gameState.claim !== null && gameState.game_phase === 'playing';
 
   return (
     <div className="h-screen w-screen overflow-hidden felt-bg relative select-none">
@@ -181,8 +184,8 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
         />
       )}
 
-      {/* === TOP BAR === */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-3">
+      {/* === TOP BAR (Styled like footer) === */}
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-3 bg-card/60 backdrop-blur-md border-b border-border/50">
         {/* Left: Title */}
         <div className="flex items-center gap-3">
           <button
@@ -207,7 +210,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
           >
             <MessageSquare className="h-3.5 w-3.5" />
           </button>
-          <div className="pile-badge">
+          <div className="pile-badge bg-primary/20 border-primary/30 text-primary font-bold">
             {t.pileCount}: {gameState.pile.length}
           </div>
         </div>
@@ -217,7 +220,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
       {showLog && (
         <div className={cn(
           'absolute z-30 bg-card/95 backdrop-blur-sm rounded-lg border border-border shadow-xl',
-          isMobile ? 'top-12 right-2 w-56' : 'top-14 right-4 w-72',
+          isMobile ? 'top-16 right-2 w-56' : 'top-16 right-4 w-72',
         )}>
           <div className="flex items-center justify-between px-3 py-1.5 border-b border-border">
             <span className="text-xs text-foreground/70 font-medium">Game Log</span>
@@ -233,7 +236,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
       {opponents.map((opp, idx) => {
         const pos = opponentPositions[idx];
         const posClass = pos === 'top'
-          ? 'absolute top-14 left-1/2 -translate-x-1/2 z-10'
+          ? 'absolute top-20 left-1/2 -translate-x-1/2 z-10'
           : pos === 'left'
           ? 'absolute left-4 top-1/2 -translate-y-1/2 z-10'
           : 'absolute right-4 top-1/2 -translate-y-1/2 z-10';
@@ -374,7 +377,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
           isCurrentPlayer={isMyTurn}
           selectedCards={selectedCards}
           onCardSelect={handleCardSelect}
-          disabled={!isMyTurn || gameState.game_phase !== 'playing'}
+          disabled={!isMyTurn || gameState.game_phase !== 'playing' || isSpectator}
         />
 
         {/* Bottom bar with my avatar only */}
