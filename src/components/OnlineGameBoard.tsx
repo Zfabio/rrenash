@@ -58,7 +58,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
       playCardPlay();
     }
     prevPileRef.current = gameState?.pile?.length || 0;
-  }, [gameState?.pile?.length, playCardPlay]);
+  }, [gameState?.pile, playCardPlay]);
 
   useEffect(() => {
     if (gameState?.challenge_result && gameState.challenge_result.timestamp !== lastChallengeTimestamp.current) {

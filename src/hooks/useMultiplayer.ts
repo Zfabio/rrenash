@@ -91,10 +91,10 @@ export function useMultiplayer(): MultiplayerContextType {
           const { data } = await supabase
             .rpc('get_room_players', { p_room_id: room.id, p_session_id: sessionId });
           if (data) {
-            setPlayers(data.map((p: any) => ({
-              ...p,
-              hand: Array.isArray(p.hand) ? (p.hand as unknown as Card[]) : []
-            })));
+            setPlayers((data as unknown[]).map((p: unknown) => ({
+              ...(p as Record<string, unknown>),
+              hand: Array.isArray((p as Record<string, unknown>).hand) ? ((p as Record<string, unknown>).hand as unknown as Card[]) : []
+            }))) as unknown as GamePlayer[];
           }
         }
       )
@@ -102,10 +102,10 @@ export function useMultiplayer(): MultiplayerContextType {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'game_state', filter: `room_id=eq.${room.id}` },
         (payload) => {
-          const newState = payload.new as any;
+          const newState = payload.new as OnlineGameState;
           setGameState({
             ...newState,
-            game_phase: newState.game_phase as 'waiting' | 'playing' | 'roundEnd' | 'gameOver',
+            game_phase: newState.game_phase,
             pile: Array.isArray(newState.pile) ? (newState.pile as unknown as Card[]) : [],
             last_played_cards: Array.isArray(newState.last_played_cards) ? (newState.last_played_cards as unknown as Card[]) : [],
             log: Array.isArray(newState.log) ? (newState.log as unknown as string[]) : [],
@@ -122,7 +122,7 @@ export function useMultiplayer(): MultiplayerContextType {
     return () => {
       supabase.removeChannel(newChannel);
     };
-  }, [room?.id]);
+  }, [room?.id, sessionId]);
 
   // Handle picking up cards when you lose a challenge
   useEffect(() => {
@@ -148,13 +148,13 @@ export function useMultiplayer(): MultiplayerContextType {
       
       supabase
         .from('game_players')
-        .update({ hand: newHand as any })
+        .update({ hand: newHand as unknown as never })
         .eq('id', myPlayer.id)
         .then(({ error }) => {
           if (error) console.error("Error picking up cards:", error);
         });
     }
-  }, [gameState?.challenge_result, room?.id, myPlayer]);
+  }, [gameState?.challenge_result, gameState?.log.length, gameState?.pile, room?.id, myPlayer]);
 
   // Fetch initial data when room is set
   useEffect(() => {
@@ -167,10 +167,10 @@ export function useMultiplayer(): MultiplayerContextType {
       ]);
 
       if (playersRes.data) {
-        setPlayers(playersRes.data.map((p: any) => ({
-          ...p,
-          hand: Array.isArray(p.hand) ? (p.hand as unknown as Card[]) : []
-        })));
+        setPlayers((playersRes.data as unknown[]).map((p: unknown) => ({
+          ...(p as Record<string, unknown>),
+          hand: Array.isArray((p as Record<string, unknown>).hand) ? ((p as Record<string, unknown>).hand as unknown as Card[]) : []
+        }))) as unknown as GamePlayer[];
       }
 
       if (stateRes.data) {
@@ -181,15 +181,15 @@ export function useMultiplayer(): MultiplayerContextType {
           pile: Array.isArray(s.pile) ? (s.pile as unknown as Card[]) : [],
           last_played_cards: Array.isArray(s.last_played_cards) ? (s.last_played_cards as unknown as Card[]) : [],
           log: Array.isArray(s.log) ? (s.log as unknown as string[]) : [],
-          claim: s.claim as any || null,
-          challenge_result: s.challenge_result as any || null,
-          finished_players: Array.isArray((s as any).finished_players) ? ((s as any).finished_players as number[]) : []
+          claim: (s.claim as unknown as OnlineGameState['claim']) || null,
+          challenge_result: (s.challenge_result as unknown as OnlineGameState['challenge_result']) || null,
+          finished_players: Array.isArray(s.finished_players) ? (s.finished_players as number[]) : []
         });
       }
     };
 
     fetchData();
-  }, [room?.id]);
+  }, [room?.id, sessionId]);
 
   const createRoom = useCallback(async (nickname: string, maxPlayers: number, totalRounds: number): Promise<string | null> => {
     setIsLoading(true);
@@ -241,8 +241,8 @@ export function useMultiplayer(): MultiplayerContextType {
 
       setRoom(roomData as GameRoom);
       return roomCode;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       return null;
     } finally {
       setIsLoading(false);
@@ -301,8 +301,8 @@ export function useMultiplayer(): MultiplayerContextType {
 
       setRoom(roomData as GameRoom);
       return true;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       return false;
     } finally {
       setIsLoading(false);
@@ -344,7 +344,7 @@ export function useMultiplayer(): MultiplayerContextType {
       const hand = sortHand(deck.slice(startIdx, startIdx + cardsPerPlayer));
       return supabase
         .from('game_players')
-        .update({ hand: hand as any })
+        .update({ hand: hand as unknown as Card[] })
         .eq('id', player.id);
     });
 
@@ -405,7 +405,7 @@ export function useMultiplayer(): MultiplayerContextType {
     // Update player's hand
     await supabase
       .from('game_players')
-      .update({ hand: newHand as any })
+      .update({ hand: newHand as unknown as Card[] })
       .eq('id', myPlayer.id);
 
     // If player just emptied their hand, DON'T end round yet
@@ -417,16 +417,16 @@ export function useMultiplayer(): MultiplayerContextType {
     await supabase
       .from('game_state')
       .update({
-        pile: newPile as any,
-        claim: newClaim as any,
-        last_played_cards: cards as any,
+        pile: newPile as unknown as Card[],
+        claim: newClaim as unknown as OnlineGameState['claim'],
+        last_played_cards: cards as unknown as Card[],
         current_player: nextPlayer,
         consecutive_passes: 0,
-        challenge_result: null, // Clear challenge result when new cards are played
-        log: newLog as any
+        challenge_result: null,
+        log: newLog
       })
       .eq('room_id', room.id);
-  }, [room, gameState, myPlayer, isMyTurn, players.length]);
+  }, [room, gameState, myPlayer, players.length]);
 
   const challenge = useCallback(async () => {
     if (!room || !gameState || !myPlayer || !gameState.claim) return;
@@ -464,8 +464,8 @@ export function useMultiplayer(): MultiplayerContextType {
           revealedCards: gameState.last_played_cards,
           pileCards: gameState.pile, // Snapshot preserved internally inside the result!
           timestamp: Date.now()
-        } as any,
-        log: [...newLog, resultLog] as any,
+        },
+        log: [...newLog, resultLog],
         pile: [], // Clear table immediately!
         claim: null,
         last_played_cards: [],
@@ -476,7 +476,7 @@ export function useMultiplayer(): MultiplayerContextType {
 
     // Completely removed the `setTimeout` which was causing race conditions 
     // and randomly deleting the game state cards!
-  }, [room, gameState, myPlayer, isMyTurn, players]);
+  }, [room, gameState, myPlayer, players]);
 
   const pass = useCallback(async () => {
     if (!room || !gameState || !myPlayer) return;
@@ -546,10 +546,10 @@ export function useMultiplayer(): MultiplayerContextType {
             claim: null,
             last_played_cards: [],
             consecutive_passes: 0,
-            finished_players: finalFinishedPlayers as any,
+            finished_players: finalFinishedPlayers,
             round_winner: newFinishedPlayers[0], // First to finish wins
             game_phase: 'roundEnd',
-            log: [...gameState.log, passLog, finishLog, '🏁 Round Over!'] as any
+            log: [...gameState.log, passLog, finishLog, '🏁 Round Over!']
           })
           .eq('room_id', room.id);
       } else {
@@ -570,8 +570,8 @@ export function useMultiplayer(): MultiplayerContextType {
             last_played_cards: [],
             consecutive_passes: 0,
             current_player: newNextPlayer,
-            finished_players: newFinishedPlayers as any,
-            log: [...gameState.log, passLog, finishLog] as any
+            finished_players: newFinishedPlayers,
+            log: [...gameState.log, passLog, finishLog]
           })
           .eq('room_id', room.id);
       }
@@ -590,7 +590,7 @@ export function useMultiplayer(): MultiplayerContextType {
           last_played_cards: [],
           consecutive_passes: 0,
           current_player: nextPlayer,
-          log: [...gameState.log, `${myPlayer.nickname} passed`, '✨ All players passed - new claim can be made!'] as any
+          log: [...gameState.log, `${myPlayer.nickname} passed`, '✨ All players passed - new claim can be made!']
         })
         .eq('room_id', room.id);
     } else {
@@ -600,11 +600,11 @@ export function useMultiplayer(): MultiplayerContextType {
           consecutive_passes: newConsecutivePasses,
           current_player: nextPlayer,
           challenge_result: null, // Clear challenge result on pass too
-          log: [...gameState.log, `${myPlayer.nickname} passed`] as any
+          log: [...gameState.log, `${myPlayer.nickname} passed`]
         })
         .eq('room_id', room.id);
     }
-  }, [room, gameState, myPlayer, isMyTurn, players]);
+  }, [room, gameState, myPlayer, players]);
 
   const nextRound = useCallback(async () => {
     if (!room || !isHost) return;
@@ -631,7 +631,7 @@ export function useMultiplayer(): MultiplayerContextType {
       const hand = sortHand(deck.slice(startIdx, startIdx + cardsPerPlayer));
       return supabase
         .from('game_players')
-        .update({ hand: hand as any })
+        .update({ hand: hand as unknown as Card[] })
         .eq('id', player.id);
     });
 
@@ -659,7 +659,7 @@ export function useMultiplayer(): MultiplayerContextType {
         })
         .eq('room_id', room.id)
     ]);
-  }, [room, isHost, players, gameState]);
+  }, [room, isHost, players]);
 
   return {
     sessionId,

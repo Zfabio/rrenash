@@ -1,7 +1,6 @@
 import { Card as CardType } from '@/types/game';
 import { cn } from '@/lib/utils';
 import React from 'react';
-import { motion } from 'framer-motion';
 
 interface PlayingCardProps {
   card: CardType;
@@ -60,7 +59,6 @@ export function PlayingCard({
   onClick,
   disabled,
   size = 'md',
-  animationDelay = 0,
   style,
 }: PlayingCardProps) {
   const isRed = card.suit === '♥' || card.suit === '♦';
@@ -68,26 +66,20 @@ export function PlayingCard({
   const colorClass = isRed ? 'text-red-600' : 'text-gray-900';
 
   if (isHidden) {
-    return <CardBack size={size} animationDelay={animationDelay} style={style} />;
+    return <CardBack size={size} style={style} />;
   }
 
   return (
-    <motion.button
-      layout
-      initial={{ scale: 0.5, opacity: 0, y: 50 }}
-      animate={{ scale: 1, opacity: 1, y: 0 }}
-      exit={{ scale: 0.5, opacity: 0, y: -50 }}
-      whileHover={{ scale: disabled ? 1 : 1.05, y: isSelected ? -20 : -5 }}
-      whileTap={{ scale: 0.95 }}
+    <button
       onClick={onClick}
       disabled={disabled}
       className={cn(
         cfg.card,
         'rounded-lg bg-white relative overflow-hidden flex-shrink-0',
         'cursor-pointer border border-gray-300',
-        isSelected && 'ring-2 ring-primary shadow-[0_0_16px_hsla(36,90%,55%,0.5)]',
+        isSelected && 'ring-2 ring-primary shadow-[0_0_16px_hsla(36,90%,55%,0.5)] -translate-y-4',
         disabled && 'cursor-not-allowed grayscale-[0.2]',
-        'shadow-[0_2px_8px_rgba(0,0,0,0.3)]'
+        'shadow-[0_2px_8px_rgba(0,0,0,0.3)] transition-all duration-200 hover:-translate-y-1 active:scale-95'
       )}
       style={{ ...style }}
     >
@@ -107,28 +99,22 @@ export function PlayingCard({
         <span className={cn('font-bold font-card', cfg.rank, colorClass)}>{card.rank}</span>
         <span className={cn(cfg.suit, colorClass)}>{card.suit}</span>
       </div>
-    </motion.button>
+    </button>
   );
 }
 
 export function CardBack({
   size = 'md',
-  animationDelay = 0,
   style,
 }: {
   size?: 'xs' | 'sm' | 'md' | 'lg';
-  animationDelay?: number;
   style?: React.CSSProperties;
 }) {
   const cfg = sizeConfig[size];
 
   // Blue diagonal stripe card back
   return (
-    <motion.div
-      layout
-      initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      exit={{ scale: 0.8, opacity: 0 }}
+    <div
       className={cn(cfg.card, 'rounded-lg overflow-hidden flex-shrink-0 shadow-[0_2px_8px_rgba(0,0,0,0.3)]')}
       style={{ ...style }}
     >
@@ -143,6 +129,6 @@ export function CardBack({
         {/* Inner border */}
         <div className="absolute inset-[3px] border border-white/20 rounded-md" />
       </div>
-    </motion.div>
+    </div>
   );
 }

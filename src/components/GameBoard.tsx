@@ -105,7 +105,7 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
       const playedLog = `${player.name} played ${selectedCards.length} card(s) as ${newClaim.rank}${isBluff && player.isHuman ? ' (bluffing!)' : ''}`;
 
       const logs = [...prev.log, playedLog];
-      let newFinished = [...(prev.finishedPlayers || [])];
+      const newFinished = [...(prev.finishedPlayers || [])];
 
       // Check if player finished
       if (newHand.length === 0 && !newFinished.includes(prev.currentPlayer)) {
@@ -178,7 +178,7 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
       setGameState(prev => {
         const loserIdx = wasBluff ? challengedPlayerId : challengerId;
         // If the loser was a finished player, remove them from finished (they got cards back)
-        let newFinished = [...(prev.finishedPlayers || [])].filter(id => id !== loserIdx);
+        const newFinished = [...(prev.finishedPlayers || [])].filter(id => id !== loserIdx);
         const newPlayers = prev.players.map((p, idx) => {
           if (idx === loserIdx) {
             return { ...p, hand: sortHand([...p.hand, ...prev.pile]) };
@@ -319,7 +319,7 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
 
           const playLog = `${aiPlayer.name} played ${cards.length} card(s) as ${newClaim.rank}`;
           const logs = [...prev.log, playLog];
-          let newFinished = [...(prev.finishedPlayers || [])];
+          const newFinished = [...(prev.finishedPlayers || [])];
 
           if (newHand.length === 0 && !newFinished.includes(prev.currentPlayer)) {
             const position = newFinished.length + 1;
@@ -362,7 +362,7 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
     }, thinkTime);
 
     return () => clearTimeout(timeout);
-  }, [gameState.currentPlayer, gameState.gamePhase, isHumanTurn, showChallengeResult]);
+  }, [gameState.currentPlayer, gameState.gamePhase, isHumanTurn, showChallengeResult, currentPlayer, gameState.claim, gameState.lastPlayedCards.length, handleChallenge]);
 
   // New round
   const handleNewRound = useCallback(() => {
