@@ -11,6 +11,8 @@ import { PlayingCard, CardBack } from './PlayingCard';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { LogOut } from 'lucide-react';
+import { FullscreenToggle } from './FullscreenToggle';
+import { ViewportScaler } from './ViewportScaler';
 import { 
   initializeGame, 
   getNextPlayer, 
@@ -375,184 +377,187 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
   const opponentPositions = getOpponentPositions(opponents.length);
 
   return (
-    <div className="h-screen w-screen overflow-hidden felt-bg relative select-none">
-      {/* Round end overlay */}
-      {gameState.gamePhase === 'roundEnd' && (
-        <div className="fixed inset-0 bg-background/90 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-card p-8 rounded-2xl text-center shadow-2xl border border-border max-w-sm w-full">
-            <h2 className="text-3xl font-bold text-primary mb-4">{t.roundOver}</h2>
-            <div className="space-y-2 mb-6">
-              {(gameState.finishedPlayers || []).map((playerId, idx) => (
-                <div key={playerId} className="flex items-center justify-between px-4 py-2 rounded-lg bg-muted/50">
-                  <span className="text-foreground font-medium">
-                    {idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'} {gameState.players[playerId].name}
-                  </span>
-                  <span className="text-primary font-bold">+{calculateRoundPoints(idx + 1)}</span>
-                </div>
-              ))}
+    <ViewportScaler baseWidth={1000} baseHeight={600}>
+      <div className="h-full w-full overflow-hidden felt-bg relative select-none">
+        {/* Round end overlay */}
+        {gameState.gamePhase === 'roundEnd' && (
+          <div className="fixed inset-0 bg-background/90 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-card p-8 rounded-2xl text-center shadow-2xl border border-border max-w-sm w-full">
+              <h2 className="text-3xl font-bold text-primary mb-4">{t.roundOver}</h2>
+              <div className="space-y-2 mb-6">
+                {(gameState.finishedPlayers || []).map((playerId, idx) => (
+                  <div key={playerId} className="flex items-center justify-between px-4 py-2 rounded-lg bg-muted/50">
+                    <span className="text-foreground font-medium">
+                      {idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'} {gameState.players[playerId].name}
+                    </span>
+                    <span className="text-primary font-bold">+{calculateRoundPoints(idx + 1)}</span>
+                  </div>
+                ))}
+              </div>
+              <Button onClick={handleNewRound} size="lg" className="bg-primary text-primary-foreground">
+                {t.nextRound}
+              </Button>
             </div>
-            <Button onClick={handleNewRound} size="lg" className="bg-primary text-primary-foreground">
-              {t.nextRound}
-            </Button>
+          </div>
+        )}
+
+        {/* === TOP BAR === */}
+        <div className={cn(
+          "absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-3 bg-card/60 backdrop-blur-md border-b border-border/50",
+          "landscape:py-1 landscape:px-3 h-auto"
+        )}>
+          <div className="flex items-center gap-3">
+            <button onClick={onBackToSetup} className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-foreground/20 transition-colors">
+              <LogOut className="h-3.5 w-3.5" />
+            </button>
+            <span className={cn(
+              'font-bold font-title text-foreground tracking-wide transition-all',
+              isMobile ? 'text-lg landscape:text-base' : 'text-xl',
+            )}>
+              RRENASH
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <FullscreenToggle />
+            <LanguageToggle />
+            <div className="pile-badge bg-primary/20 border-primary/30 text-primary font-bold">
+              {t.pileCount}: {gameState.pile.length}
+            </div>
           </div>
         </div>
-      )}
 
-      {/* === TOP BAR === */}
-      <div className={cn(
-        "absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-3 bg-card/60 backdrop-blur-md border-b border-border/50",
-        "landscape:py-1 landscape:px-3 h-auto"
-      )}>
-        <div className="flex items-center gap-3">
-          <button onClick={onBackToSetup} className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-foreground/20 transition-colors">
-            <LogOut className="h-3.5 w-3.5" />
-          </button>
-          <span className={cn(
-            'font-bold font-title text-foreground tracking-wide transition-all',
-            isMobile ? 'text-lg landscape:text-base' : 'text-xl',
-          )}>
-            RRENASH
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <LanguageToggle />
-          <div className="pile-badge bg-primary/20 border-primary/30 text-primary font-bold">
-            {t.pileCount}: {gameState.pile.length}
-          </div>
-        </div>
-      </div>
+        {/* === OPPONENTS === */}
+        {opponents.map((opp, idx) => {
+          const pos = opponentPositions[idx];
+          const posClass = pos === 'top'
+            ? 'absolute top-20 landscape:top-[5.5rem] left-1/2 -translate-x-1/2 z-10'
+            : pos === 'left'
+            ? 'absolute left-6 top-[45%] landscape:top-[42%] -translate-y-1/2 z-10'
+            : 'absolute right-6 top-[45%] landscape:top-[42%] -translate-y-1/2 z-10';
 
-      {/* === OPPONENTS === */}
-      {opponents.map((opp, idx) => {
-        const pos = opponentPositions[idx];
-        const posClass = pos === 'top'
-          ? 'absolute top-20 landscape:top-[5.5rem] left-1/2 -translate-x-1/2 z-10'
-          : pos === 'left'
-          ? 'absolute left-6 top-[45%] landscape:top-[42%] -translate-y-1/2 z-10'
-          : 'absolute right-6 top-[45%] landscape:top-[42%] -translate-y-1/2 z-10';
-
-        return (
-          <div key={opp.id} className={cn(posClass, "landscape:scale-75 transition-transform origin-center")}>
-            <PlayerAvatar
-              playerId={opp.id}
-              name={opp.name}
-              cardCount={opp.hand.length}
-              score={opp.score}
-              isCurrentPlayer={gameState.currentPlayer === opp.id}
-              isThinking={opp.isThinking}
-              position={pos}
-              finishPosition={(gameState.finishedPlayers || []).indexOf(opp.id) !== -1 ? (gameState.finishedPlayers || []).indexOf(opp.id) + 1 : undefined}
-              challengeResult={showChallengeResult ? gameState.challengeResult : undefined}
-              language={language}
-            />
-          </div>
-        );
-      })}
-
-      {/* === CENTER PLAY AREA === */}
-      <div className={cn(
-        "absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-1 transition-transform",
-        "landscape:scale-90 landscape:top-[40%]"
-      )}>
-        {gameState.claim && (() => {
-          const claimer = gameState.players.find(p => p.id === gameState.claim!.playerId);
           return (
-            <div className="bg-card/80 backdrop-blur-sm rounded-lg px-5 py-2 text-center border border-border">
-              <div className="flex items-center justify-center gap-1.5 mb-0.5">
-                {claimer && (
-                  <span className="inline-flex items-center justify-center rounded-full bg-primary font-bold text-primary-foreground w-6 h-6 text-[10px]">
-                    {claimer.name.charAt(0).toUpperCase()}
-                  </span>
-                )}
-                <span className="text-foreground/70 font-medium text-xs">
-                  {claimer?.name || 'Unknown'}
-                </span>
-              </div>
-              <div className="flex items-center justify-center font-bold text-primary text-2xl gap-2 mt-1 font-card">
-                <span>{gameState.claim.count}×</span>
-                <div className="flex items-center justify-center bg-white text-gray-900 rounded-md shadow-sm border border-gray-300 leading-none w-8 h-11 text-lg relative">
-                  <span className="font-bold font-card">{gameState.claim.rank}</span>
-                  <div className="absolute inset-[2px] border border-gray-200/60 rounded-sm pointer-events-none" />
-                </div>
-              </div>
+            <div key={opp.id} className={cn(posClass, "landscape:scale-75 transition-transform origin-center")}>
+              <PlayerAvatar
+                playerId={opp.id}
+                name={opp.name}
+                cardCount={opp.hand.length}
+                score={opp.score}
+                isCurrentPlayer={gameState.currentPlayer === opp.id}
+                isThinking={opp.isThinking}
+                position={pos}
+                finishPosition={(gameState.finishedPlayers || []).indexOf(opp.id) !== -1 ? (gameState.finishedPlayers || []).indexOf(opp.id) + 1 : undefined}
+                challengeResult={showChallengeResult ? gameState.challengeResult : undefined}
+                language={language}
+              />
             </div>
           );
-        })()}
+        })}
 
+        {/* === CENTER PLAY AREA === */}
         <div className={cn(
-          'flex items-center justify-center',
-          isMobile ? 'min-h-[54px]' : 'min-h-[74px]',
+          "absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-1 transition-transform",
+          "landscape:scale-90 landscape:top-[40%]"
         )}>
-          {gameState.pile.length === 0 && gameState.lastPlayedCards.length === 0 ? (
-            <div className="text-foreground/30 font-semibold uppercase tracking-wider text-sm" />
-          ) : showChallengeResult && gameState.challengeResult ? (
-            <div className={cn(
-              'flex gap-1 p-2 rounded-xl',
-              gameState.challengeResult.wasBluff ? 'bg-destructive/20' : 'bg-green-700/40',
-            )}>
-              {gameState.challengeResult.revealedCards.map((card, idx) => (
-                <PlayingCard key={card.id} card={card} size="sm" />
-              ))}
-            </div>
-          ) : gameState.lastPlayedCards.length > 0 ? (
-            <div className="flex gap-1">
-              {gameState.lastPlayedCards.map((card) => (
-                <CardBack key={card.id} size="sm" />
-              ))}
-            </div>
-          ) : (
-            <div className="relative">
-              {gameState.pile.slice(-5).map((_, idx) => (
-                <div key={idx} className="absolute" style={{
-                  transform: `rotate(${(idx - 2) * 12}deg) translate(${(idx - 2) * 3}px, ${(idx - 2) * 2}px)`,
-                  zIndex: idx,
-                }}>
-                  <CardBack size="sm" />
+          {gameState.claim && (() => {
+            const claimer = gameState.players.find(p => p.id === gameState.claim!.playerId);
+            return (
+              <div className="bg-card/80 backdrop-blur-sm rounded-lg px-5 py-2 text-center border border-border">
+                <div className="flex items-center justify-center gap-1.5 mb-0.5">
+                  {claimer && (
+                    <span className="inline-flex items-center justify-center rounded-full bg-primary font-bold text-primary-foreground w-6 h-6 text-[10px]">
+                      {claimer.name.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                  <span className="text-foreground/70 font-medium text-xs">
+                    {claimer?.name || 'Unknown'}
+                  </span>
                 </div>
-              ))}
-              <div className="relative z-10"><CardBack size="sm" /></div>
-            </div>
-          )}
+                <div className="flex items-center justify-center font-bold text-primary text-2xl gap-2 mt-1 font-card">
+                  <span>{gameState.claim.count}×</span>
+                  <div className="flex items-center justify-center bg-white text-gray-900 rounded-md shadow-sm border border-gray-300 leading-none w-8 h-11 text-lg relative">
+                    <span className="font-bold font-card">{gameState.claim.rank}</span>
+                    <div className="absolute inset-[2px] border border-gray-200/60 rounded-sm pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          <div className={cn(
+            'flex items-center justify-center',
+            isMobile ? 'min-h-[54px]' : 'min-h-[74px]',
+          )}>
+            {gameState.pile.length === 0 && gameState.lastPlayedCards.length === 0 ? (
+              <div className="text-foreground/30 font-semibold uppercase tracking-wider text-sm" />
+            ) : showChallengeResult && gameState.challengeResult ? (
+              <div className={cn(
+                'flex gap-1 p-2 rounded-xl',
+                gameState.challengeResult.wasBluff ? 'bg-destructive/20' : 'bg-green-700/40',
+              )}>
+                {gameState.challengeResult.revealedCards.map((card, idx) => (
+                  <PlayingCard key={card.id} card={card} size="sm" />
+                ))}
+              </div>
+            ) : gameState.lastPlayedCards.length > 0 ? (
+              <div className="flex gap-1">
+                {gameState.lastPlayedCards.map((card) => (
+                  <CardBack key={card.id} size="sm" />
+                ))}
+              </div>
+            ) : (
+              <div className="relative">
+                {gameState.pile.slice(-5).map((_, idx) => (
+                  <div key={idx} className="absolute" style={{
+                    transform: `rotate(${(idx - 2) * 12}deg) translate(${(idx - 2) * 3}px, ${(idx - 2) * 2}px)`,
+                    zIndex: idx,
+                  }}>
+                    <CardBack size="sm" />
+                  </div>
+                ))}
+                <div className="relative z-10"><CardBack size="sm" /></div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* === BOTTOM: Controls + Hand === */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center gap-2">
-        <GameControls
-          selectedCards={selectedCards}
-          currentClaim={gameState.claim}
-          canPlay={canPlay}
-          canChallenge={canChallenge}
-          canPass={canPass}
-          onPlay={handlePlay}
-          onChallenge={handleChallenge}
-          onPass={handlePass}
-        />
+        {/* === BOTTOM: Controls + Hand === */}
+        <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center gap-2">
+          <GameControls
+            selectedCards={selectedCards}
+            currentClaim={gameState.claim}
+            canPlay={canPlay}
+            canChallenge={canChallenge}
+            canPass={canPass}
+            onPlay={handlePlay}
+            onChallenge={handleChallenge}
+            onPass={handlePass}
+          />
 
-        <MyHand
-          player={myPlayer}
-          isCurrentPlayer={gameState.currentPlayer === 0}
-          selectedCards={selectedCards}
-          onCardSelect={handleCardSelect}
-          disabled={!isHumanTurn || gameState.gamePhase !== 'playing' || isSpectator}
-        />
+          <MyHand
+            player={myPlayer}
+            isCurrentPlayer={gameState.currentPlayer === 0}
+            selectedCards={selectedCards}
+            onCardSelect={handleCardSelect}
+            disabled={!isHumanTurn || gameState.gamePhase !== 'playing' || isSpectator}
+          />
 
-        <div className="bottom-bar w-full flex items-center justify-center relative min-h-[70px] landscape:min-h-[50px]">
-          <div className="absolute inset-0 flex items-center justify-center landscape:scale-90 landscape:-translate-y-1">
-            <PlayerAvatar
-              playerId={0}
-              name={myPlayer.name}
-              cardCount={myPlayer.hand.length}
-              score={myPlayer.score}
-              isCurrentPlayer={gameState.currentPlayer === 0}
-              position="top"
-              finishPosition={(gameState.finishedPlayers || []).includes(0) ? (gameState.finishedPlayers || []).indexOf(0) + 1 : undefined}
-              challengeResult={showChallengeResult ? gameState.challengeResult : undefined}
-              language={language}
-            />
+          <div className="bottom-bar w-full flex items-center justify-center relative min-h-[70px] landscape:min-h-[50px]">
+            <div className="absolute inset-0 flex items-center justify-center landscape:scale-90 landscape:-translate-y-1">
+              <PlayerAvatar
+                playerId={0}
+                name={myPlayer.name}
+                cardCount={myPlayer.hand.length}
+                score={myPlayer.score}
+                isCurrentPlayer={gameState.currentPlayer === 0}
+                position="top"
+                finishPosition={(gameState.finishedPlayers || []).includes(0) ? (gameState.finishedPlayers || []).indexOf(0) + 1 : undefined}
+                challengeResult={showChallengeResult ? gameState.challengeResult : undefined}
+                language={language}
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </ViewportScaler>
   );
 }

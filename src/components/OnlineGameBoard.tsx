@@ -12,6 +12,8 @@ import { useSound } from '@/hooks/useSound';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { LogOut, MessageSquare, X } from 'lucide-react';
+import { FullscreenToggle } from './FullscreenToggle';
+import { ViewportScaler } from './ViewportScaler';
 
 interface OnlineGameBoardProps {
   multiplayer: MultiplayerContextType;
@@ -169,235 +171,237 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
   const canPass = isMyTurn && !isSpectator && gameState.claim !== null && gameState.game_phase === 'playing';
 
   return (
-    <div className="h-screen w-screen overflow-hidden felt-bg relative select-none">
-      {/* Round end / Game over overlay */}
-      {(gameState.game_phase === 'roundEnd' || gameState.game_phase === 'gameOver') && (
-        <RoundEndOverlay
-          players={players}
-          gameState={gameState}
-          isHost={isHost}
-          isGameOver={gameState.game_phase === 'gameOver'}
-          currentRound={room.current_round}
-          totalRounds={room.total_rounds}
-          onNextRound={handleNextRound}
-          onLeave={handleLeave}
-        />
-      )}
+    <ViewportScaler baseWidth={1000} baseHeight={600}>
+      <div className="h-full w-full overflow-hidden felt-bg relative select-none">
+        {/* Round end / Game over overlay */}
+        {(gameState.game_phase === 'roundEnd' || gameState.game_phase === 'gameOver') && (
+          <RoundEndOverlay
+            players={players}
+            gameState={gameState}
+            isHost={isHost}
+            isGameOver={gameState.game_phase === 'gameOver'}
+            currentRound={room.current_round}
+            totalRounds={room.total_rounds}
+            onNextRound={handleNextRound}
+            onLeave={handleLeave}
+          />
+        )}
 
-      {/* === TOP BAR === */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-3 bg-card/60 backdrop-blur-md border-b border-border/50">
-        {/* Left: Title */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleLeave}
-            className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-foreground/20 transition-colors"
-          >
-            <LogOut className="h-3.5 w-3.5" />
-          </button>
-          <span className={cn(
-            'font-bold font-title text-foreground tracking-wide',
-            isMobile ? 'text-lg' : 'text-xl',
-          )}>
-            RRENASH
-          </span>
-        </div>
-
-        {/* Right: Pile + Log */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowLog(!showLog)}
-            className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-foreground/20 transition-colors"
-          >
-            <MessageSquare className="h-3.5 w-3.5" />
-          </button>
-          <div className="pile-badge bg-primary/20 border-primary/30 text-primary font-bold">
-            {t.pileCount}: {gameState.pile.length}
-          </div>
-        </div>
-      </div>
-
-      {/* Game log - floating panel */}
-      {showLog && (
-        <div className={cn(
-          'absolute z-30 bg-card/95 backdrop-blur-sm rounded-lg border border-border shadow-xl',
-          isMobile ? 'top-16 right-2 w-56' : 'top-16 right-4 w-72',
-        )}>
-          <div className="flex items-center justify-between px-3 py-1.5 border-b border-border">
-            <span className="text-xs text-foreground/70 font-medium">Game Log</span>
-            <button onClick={() => setShowLog(false)} className="text-foreground/50 hover:text-foreground">
-              <X className="h-3 w-3" />
+        {/* === TOP BAR === */}
+        <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-3 bg-card/60 backdrop-blur-md border-b border-border/50">
+          {/* Left: Title */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleLeave}
+              className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-foreground/20 transition-colors"
+            >
+              <LogOut className="h-3.5 w-3.5" />
             </button>
+            <span className={cn(
+              'font-bold font-title text-foreground tracking-wide',
+              isMobile ? 'text-lg' : 'text-xl',
+            )}>
+              RRENASH
+            </span>
           </div>
-          <GameLog logs={gameState.log} />
+
+          {/* Right: Fullscreen + Pile + Log */}
+          <div className="flex items-center gap-2">
+            <FullscreenToggle />
+            <button
+              onClick={() => setShowLog(!showLog)}
+              className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-foreground/20 transition-colors"
+            >
+              <MessageSquare className="h-3.5 w-3.5" />
+            </button>
+            <div className="pile-badge bg-primary/20 border-primary/30 text-primary font-bold">
+              {t.pileCount}: {gameState.pile.length}
+            </div>
+          </div>
         </div>
-      )}
 
-      {/* === OPPONENTS === */}
-      {opponents.map((opp, idx) => {
-        const pos = opponentPositions[idx];
-        const posClass = pos === 'top'
-          ? 'absolute top-24 left-1/2 -translate-x-1/2 z-10' // Increased top-20 to top-24 for better margin
-          : pos === 'left'
-          ? 'absolute left-6 top-[45%] -translate-y-1/2 z-10' // Increased left margin and adjusted top
-          : 'absolute right-6 top-[45%] -translate-y-1/2 z-10'; // Increased right margin and adjusted top
-
-        return (
-          <div key={opp.id} className={posClass}>
-            <PlayerAvatar
-              playerId={opp.id}
-              name={opp.name}
-              cardCount={opp.handSize || 0}
-              score={opp.score}
-              isCurrentPlayer={gameState.current_player === opp.id}
-              isThinking={opp.isThinking}
-              position={pos}
-              finishPosition={opp.finishPosition}
-              challengeResult={showChallengeResult ? gameState.challenge_result : undefined}
-              language={language}
-            />
+        {/* Game log - floating panel */}
+        {showLog && (
+          <div className={cn(
+            'absolute z-30 bg-card/95 backdrop-blur-sm rounded-lg border border-border shadow-xl',
+            isMobile ? 'top-16 right-2 w-56' : 'top-16 right-4 w-72',
+          )}>
+            <div className="flex items-center justify-between px-3 py-1.5 border-b border-border">
+              <span className="text-xs text-foreground/70 font-medium">Game Log</span>
+              <button onClick={() => setShowLog(false)} className="text-foreground/50 hover:text-foreground">
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+            <GameLog logs={gameState.log} />
           </div>
-        );
-      })}
+        )}
 
-      {/* === CENTER PLAY AREA === */}
-      <div className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-1">
-        {/* Claim display */}
-        {gameState.claim && (() => {
-          const claimer = gamePlayers.find(p => p.id === gameState.claim!.playerId);
+        {/* === OPPONENTS === */}
+        {opponents.map((opp, idx) => {
+          const pos = opponentPositions[idx];
+          const posClass = pos === 'top'
+            ? 'absolute top-24 left-1/2 -translate-x-1/2 z-10'
+            : pos === 'left'
+            ? 'absolute left-6 top-[45%] -translate-y-1/2 z-10'
+            : 'absolute right-6 top-[45%] -translate-y-1/2 z-10';
+
           return (
-            <div className="bg-card/80 backdrop-blur-sm rounded-lg px-5 py-2 text-center border border-border">
-              <div className="flex items-center justify-center gap-1.5 mb-0.5">
-                {claimer && (
-                  <span className={cn(
-                    'inline-flex items-center justify-center rounded-full bg-primary font-bold text-primary-foreground',
-                    isMobile ? 'w-5 h-5 text-[8px]' : 'w-6 h-6 text-[10px]',
-                  )}>
-                    {claimer.name.charAt(0).toUpperCase()}
-                  </span>
-                )}
-                <span className={cn(
-                  'text-foreground/70 font-medium',
-                  isMobile ? 'text-[10px]' : 'text-xs',
-                )}>
-                  {claimer?.name || 'Unknown'}
-                </span>
-              </div>
-              <div className={cn(
-                'flex items-center justify-center font-bold text-primary mt-1 font-card',
-                isMobile ? 'text-lg gap-1.5' : 'text-2xl gap-2',
-              )}>
-                <span>{gameState.claim.count}×</span>
-                <div className={cn(
-                  'flex items-center justify-center bg-white text-gray-900 rounded-md shadow-sm border border-gray-300 leading-none relative',
-                  isMobile ? 'w-6 h-8 text-sm' : 'w-8 h-11 text-lg'
-                )}>
-                  <span className="font-bold font-card">{gameState.claim.rank}</span>
-                  <div className="absolute inset-[2px] border border-gray-200/60 rounded-sm pointer-events-none" />
-                </div>
-              </div>
+            <div key={opp.id} className={posClass}>
+              <PlayerAvatar
+                playerId={opp.id}
+                name={opp.name}
+                cardCount={opp.handSize || 0}
+                score={opp.score}
+                isCurrentPlayer={gameState.current_player === opp.id}
+                isThinking={opp.isThinking}
+                position={pos}
+                finishPosition={opp.finishPosition}
+                challengeResult={showChallengeResult ? gameState.challenge_result : undefined}
+                language={language}
+              />
             </div>
           );
-        })()}
+        })}
 
-        {/* Played cards / Pile area */}
-        <div className={cn(
-          'flex items-center justify-center',
-          isMobile ? 'min-h-[54px]' : 'min-h-[74px]',
-        )}>
-          {gameState.pile.length === 0 && gameState.last_played_cards.length === 0 ? (
-            <div className={cn(
-              'text-foreground/30 font-semibold uppercase tracking-wider',
-              isMobile ? 'text-xs' : 'text-sm',
-            )}>
-              {/* Removed playACard text */}
-            </div>
-          ) : showChallengeResult && gameState.challenge_result ? (
-            <div className={cn(
-              'flex gap-1 p-2 rounded-xl',
-              gameState.challenge_result.wasBluff ? 'bg-destructive/20' : 'bg-green-700/40',
-            )}>
-              {gameState.challenge_result.revealedCards.map((card, idx) => (
-                <PlayingCard
-                  key={card.id}
-                  card={card}
-                  size={isMobile ? 'xs' : 'sm'}
-                />
-              ))}
-            </div>
-          ) : gameState.last_played_cards.length > 0 ? (
-            <div className="flex gap-1">
-              {gameState.last_played_cards.map((card) => (
-                <CardBack key={card.id} size={isMobile ? 'xs' : 'sm'} />
-              ))}
-            </div>
-          ) : (
-            <div className="relative">
-              {gameState.pile.slice(-Math.min(5, gameState.pile.length)).map((_, idx) => (
-                <div
-                  key={idx}
-                  className="absolute"
-                  style={{
-                    transform: `rotate(${(idx - 2) * 12}deg) translate(${(idx - 2) * 3}px, ${(idx - 2) * 2}px)`,
-                    zIndex: idx,
-                  }}
-                >
+        {/* === CENTER PLAY AREA === */}
+        <div className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-1">
+          {/* Claim display */}
+          {gameState.claim && (() => {
+            const claimer = gamePlayers.find(p => p.id === gameState.claim!.playerId);
+            return (
+              <div className="bg-card/80 backdrop-blur-sm rounded-lg px-5 py-2 text-center border border-border">
+                <div className="flex items-center justify-center gap-1.5 mb-0.5">
+                  {claimer && (
+                    <span className={cn(
+                      'inline-flex items-center justify-center rounded-full bg-primary font-bold text-primary-foreground',
+                      isMobile ? 'w-5 h-5 text-[8px]' : 'w-6 h-6 text-[10px]',
+                    )}>
+                      {claimer.name.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                  <span className={cn(
+                    'text-foreground/70 font-medium',
+                    isMobile ? 'text-[10px]' : 'text-xs',
+                  )}>
+                    {claimer?.name || 'Unknown'}
+                  </span>
+                </div>
+                <div className={cn(
+                  'flex items-center justify-center font-bold text-primary mt-1 font-card',
+                  isMobile ? 'text-lg gap-1.5' : 'text-2xl gap-2',
+                )}>
+                  <span>{gameState.claim.count}×</span>
+                  <div className={cn(
+                    'flex items-center justify-center bg-white text-gray-900 rounded-md shadow-sm border border-gray-300 leading-none relative',
+                    isMobile ? 'w-6 h-8 text-sm' : 'w-8 h-11 text-lg'
+                  )}>
+                    <span className="font-bold font-card">{gameState.claim.rank}</span>
+                    <div className="absolute inset-[2px] border border-gray-200/60 rounded-sm pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Played cards / Pile area */}
+          <div className={cn(
+            'flex items-center justify-center',
+            isMobile ? 'min-h-[54px]' : 'min-h-[74px]',
+          )}>
+            {gameState.pile.length === 0 && gameState.last_played_cards.length === 0 ? (
+              <div className={cn(
+                'text-foreground/30 font-semibold uppercase tracking-wider',
+                isMobile ? 'text-xs' : 'text-sm',
+              )}>
+              </div>
+            ) : showChallengeResult && gameState.challenge_result ? (
+              <div className={cn(
+                'flex gap-1 p-2 rounded-xl',
+                gameState.challenge_result.wasBluff ? 'bg-destructive/20' : 'bg-green-700/40',
+              )}>
+                {gameState.challenge_result.revealedCards.map((card, idx) => (
+                  <PlayingCard
+                    key={card.id}
+                    card={card}
+                    size={isMobile ? 'xs' : 'sm'}
+                  />
+                ))}
+              </div>
+            ) : gameState.last_played_cards.length > 0 ? (
+              <div className="flex gap-1">
+                {gameState.last_played_cards.map((card) => (
+                  <CardBack key={card.id} size={isMobile ? 'xs' : 'sm'} />
+                ))}
+              </div>
+            ) : (
+              <div className="relative">
+                {gameState.pile.slice(-Math.min(5, gameState.pile.length)).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="absolute"
+                    style={{
+                      transform: `rotate(${(idx - 2) * 12}deg) translate(${(idx - 2) * 3}px, ${(idx - 2) * 2}px)`,
+                      zIndex: idx,
+                    }}
+                  >
+                    <CardBack size={isMobile ? 'xs' : 'sm'} />
+                  </div>
+                ))}
+                <div className="relative z-10">
                   <CardBack size={isMobile ? 'xs' : 'sm'} />
                 </div>
-              ))}
-              <div className="relative z-10">
-                <CardBack size={isMobile ? 'xs' : 'sm'} />
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* === BOTTOM: Controls + Hand === */}
-      <div className={cn(
-        'absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center',
-        isMobile ? 'gap-1' : 'gap-2',
-      )}>
-        {/* Controls */}
-        <GameControls
-          selectedCards={selectedCards}
-          currentClaim={gameState.claim}
-          canPlay={canPlay}
-          canChallenge={canChallenge}
-          canPass={canPass}
-          onPlay={handlePlay}
-          onChallenge={handleChallenge}
-          onPass={handlePass}
-        />
-
-        {/* My hand */}
-        <MyHand
-          player={myGamePlayer}
-          isCurrentPlayer={isMyTurn}
-          selectedCards={selectedCards}
-          onCardSelect={handleCardSelect}
-          disabled={!isMyTurn || gameState.game_phase !== 'playing' || isSpectator}
-        />
-
-        {/* Bottom bar with my avatar only */}
+        {/* === BOTTOM: Controls + Hand === */}
         <div className={cn(
-          'bottom-bar w-full flex items-center justify-center relative min-h-[70px]', // Increased height for safe margins
-          isMobile ? 'py-2' : 'py-3',
+          'absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center',
+          isMobile ? 'gap-1' : 'gap-2',
         )}>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <PlayerAvatar
-              playerId={myGamePlayer.id}
-              name={myGamePlayer.name}
-              cardCount={myGamePlayer.handSize || 0}
-              score={myGamePlayer.score}
-              isCurrentPlayer={isMyTurn}
-              position="top" // Not used for layout here
-              finishPosition={myGamePlayer.finishPosition}
-              challengeResult={showChallengeResult ? gameState.challenge_result : undefined}
-              language={language}
-            />
+          {/* Controls */}
+          <GameControls
+            selectedCards={selectedCards}
+            currentClaim={gameState.claim}
+            canPlay={canPlay}
+            canChallenge={canChallenge}
+            canPass={canPass}
+            onPlay={handlePlay}
+            onChallenge={handleChallenge}
+            onPass={handlePass}
+          />
+
+          {/* My hand */}
+          <MyHand
+            player={myGamePlayer}
+            isCurrentPlayer={isMyTurn}
+            selectedCards={selectedCards}
+            onCardSelect={handleCardSelect}
+            disabled={!isMyTurn || gameState.game_phase !== 'playing' || isSpectator}
+          />
+
+          {/* Bottom bar with my avatar only */}
+          <div className={cn(
+            'bottom-bar w-full flex items-center justify-center relative min-h-[70px]',
+            isMobile ? 'py-2' : 'py-3',
+          )}>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <PlayerAvatar
+                playerId={myGamePlayer.id}
+                name={myGamePlayer.name}
+                cardCount={myGamePlayer.handSize || 0}
+                score={myGamePlayer.score}
+                isCurrentPlayer={isMyTurn}
+                position="top"
+                finishPosition={myGamePlayer.finishPosition}
+                challengeResult={showChallengeResult ? gameState.challenge_result : undefined}
+                language={language}
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </ViewportScaler>
   );
 }
