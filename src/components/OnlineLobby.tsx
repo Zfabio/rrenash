@@ -107,7 +107,9 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
                   <LanguageToggle />
                 </div>
               </div>
-              <CardTitle className="text-4xl font-bold font-title text-foreground tracking-wider drop-shadow-sm">{t.gameTitle}</CardTitle>
+              <div className="flex justify-center mb-2">
+                <img src="/logo.png" alt="RRENASH" className="h-16 w-auto" />
+              </div>
               <CardDescription>{txt.waitingForPlayers}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -190,7 +192,9 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
                   <LanguageToggle />
                 </div>
               </div>
-              <CardTitle className="text-4xl font-bold font-title text-foreground tracking-wider drop-shadow-sm">{t.gameTitle}</CardTitle>
+              <div className="flex justify-center mb-2">
+                <img src="/logo.png" alt="RRENASH" className="h-16 w-auto" />
+              </div>
               <CardDescription>{txt.onlinePlay}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

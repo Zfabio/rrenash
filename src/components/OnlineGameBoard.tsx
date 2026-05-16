@@ -197,12 +197,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
             >
               <LogOut className="h-3.5 w-3.5" />
             </button>
-            <span className={cn(
-              'font-bold font-title text-foreground tracking-wide',
-              isMobile ? 'text-lg' : 'text-xl',
-            )}>
-              RRENASH
-            </span>
+            <img src="/logo.png" alt="RRENASH" className="h-8 md:h-10 w-auto brightness-110" />
           </div>
 
           {/* Right: Fullscreen + Pile + Log */}

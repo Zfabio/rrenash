@@ -410,12 +410,7 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
             <button onClick={onBackToSetup} className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-foreground/20 transition-colors">
               <LogOut className="h-3.5 w-3.5" />
             </button>
-            <span className={cn(
-              'font-bold font-title text-foreground tracking-wide transition-all',
-              isMobile ? 'text-lg landscape:text-base' : 'text-xl',
-            )}>
-              RRENASH
-            </span>
+            <img src="/logo.png" alt="RRENASH" className="h-8 md:h-10 w-auto brightness-110" />
           </div>
           <div className="flex items-center gap-2">
             <FullscreenToggle />
