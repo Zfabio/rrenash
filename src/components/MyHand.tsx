@@ -1,3 +1,4 @@
+import React from 'react';
 import { Player, Card as CardType } from '@/types/game';
 import { PlayingCard } from './PlayingCard';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -20,20 +21,31 @@ export function MyHand({
   const isMobile = useIsMobile();
   const total = player.hand.length;
 
-  // Use larger sizing! 'md' for mobile, 'lg' for PC.
-  const cardSize = isMobile ? 'md' : 'lg';
-  const cardW = cardSize === 'md' ? 52 : 68;
-  const cardH = cardSize === 'md' ? 74 : 98;
+  const [isPortrait, setIsPortrait] = React.useState(window.innerHeight > window.innerWidth);
+  
+  React.useEffect(() => {
+    const handleResize = () => setIsPortrait(window.innerHeight > window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isLandscape = !isPortrait && isMobile;
+
+  // Use smaller sizing for landscape! 'sm' for landscape mobile, 'md' for portrait mobile, 'lg' for PC.
+  const cardSize = isLandscape ? 'sm' : (isMobile ? 'md' : 'lg');
+  const cardW = cardSize === 'sm' ? 38 : (cardSize === 'md' ? 52 : 68);
+  const cardH = cardSize === 'sm' ? 54 : (cardSize === 'md' ? 74 : 98);
 
   const maxWidth = isMobile ? window.innerWidth - 16 : Math.min(window.innerWidth - 40, 700);
 
   // Increase spacing since cards are bigger
-  const idealSpacing = isMobile ? 32 : 46;
+  const idealSpacing = cardSize === 'sm' ? 22 : (isMobile ? 32 : 46);
   
   // Calculate how many fit natively by math, but also add a hard cap 
-  // so it never looks too squished (max 8 per row on mobile, max 10 on PC)
+  // so it never looks too squished (max 8 per row on mobile, max 10 on PC, max 16 on landscape mobile)
   const calcMax = Math.max(1, Math.floor((maxWidth - cardW) / idealSpacing) + 1);
-  const maxCardsPerRow = Math.min(isMobile ? 8 : 10, calcMax);
+  const maxLimit = isLandscape ? 16 : (isMobile ? 8 : 10);
+  const maxCardsPerRow = Math.min(maxLimit, calcMax);
   
   // If we have more cards than the limit, split into multiple rows
   const numRows = total === 0 ? 0 : Math.ceil(total / maxCardsPerRow);

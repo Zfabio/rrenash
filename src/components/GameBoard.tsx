@@ -399,14 +399,17 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
       )}
 
       {/* === TOP BAR === */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-3 bg-card/60 backdrop-blur-md border-b border-border/50">
+      <div className={cn(
+        "absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-3 bg-card/60 backdrop-blur-md border-b border-border/50",
+        "landscape:py-1 landscape:px-3 h-auto"
+      )}>
         <div className="flex items-center gap-3">
           <button onClick={onBackToSetup} className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-foreground/20 transition-colors">
             <LogOut className="h-3.5 w-3.5" />
           </button>
           <span className={cn(
-            'font-bold font-title text-foreground tracking-wide',
-            isMobile ? 'text-lg' : 'text-xl',
+            'font-bold font-title text-foreground tracking-wide transition-all',
+            isMobile ? 'text-lg landscape:text-base' : 'text-xl',
           )}>
             RRENASH
           </span>
@@ -423,13 +426,13 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
       {opponents.map((opp, idx) => {
         const pos = opponentPositions[idx];
         const posClass = pos === 'top'
-          ? 'absolute top-24 left-1/2 -translate-x-1/2 z-10'
+          ? 'absolute top-20 landscape:top-[5.5rem] left-1/2 -translate-x-1/2 z-10'
           : pos === 'left'
-          ? 'absolute left-6 top-[45%] -translate-y-1/2 z-10'
-          : 'absolute right-6 top-[45%] -translate-y-1/2 z-10';
+          ? 'absolute left-6 top-[45%] landscape:top-[42%] -translate-y-1/2 z-10'
+          : 'absolute right-6 top-[45%] landscape:top-[42%] -translate-y-1/2 z-10';
 
         return (
-          <div key={opp.id} className={posClass}>
+          <div key={opp.id} className={cn(posClass, "landscape:scale-75 transition-transform origin-center")}>
             <PlayerAvatar
               playerId={opp.id}
               name={opp.name}
@@ -447,7 +450,10 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
       })}
 
       {/* === CENTER PLAY AREA === */}
-      <div className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-1">
+      <div className={cn(
+        "absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-1 transition-transform",
+        "landscape:scale-90 landscape:top-[40%]"
+      )}>
         {gameState.claim && (() => {
           const claimer = gameState.players.find(p => p.id === gameState.claim!.playerId);
           return (
@@ -531,8 +537,8 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
           disabled={!isHumanTurn || gameState.gamePhase !== 'playing' || isSpectator}
         />
 
-        <div className="bottom-bar w-full flex items-center justify-center relative min-h-[70px]">
-          <div className="absolute inset-0 flex items-center justify-center">
+        <div className="bottom-bar w-full flex items-center justify-center relative min-h-[70px] landscape:min-h-[50px]">
+          <div className="absolute inset-0 flex items-center justify-center landscape:scale-90 landscape:-translate-y-1">
             <PlayerAvatar
               playerId={0}
               name={myPlayer.name}

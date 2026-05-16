@@ -182,6 +182,21 @@
   .text-club {
     color: hsl(221 39% 11%);
   }
+
+  /* Landscape Mobile Optimizations */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .landscape-condensed {
+      @apply py-1 px-2;
+    }
+    
+    .landscape-avatar-scale {
+      @apply scale-75 origin-center;
+    }
+    
+    .landscape-text-xs {
+      @apply text-[10px];
+    }
+  }
 }
 
 /* Animations */
