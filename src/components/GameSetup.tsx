@@ -3,7 +3,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { LanguageToggle } from './LanguageToggle';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Play, ArrowLeft } from 'lucide-react';
+import { Play, ArrowLeft, Globe, GraduationCap } from 'lucide-react';
+import { ViewportScaler } from './ViewportScaler';
+import { FullscreenToggle } from './FullscreenToggle';
 
 interface GameSetupProps {
   onStartGame: (numPlayers: number, targetScore: number) => void;
@@ -86,49 +88,46 @@ export function GameSetup({ onStartGame, onOnlinePlay }: GameSetupProps) {
   }
 
   return (
-    <div className="min-h-screen felt-bg flex flex-col items-center justify-center p-4">
-      <div className="absolute top-6 right-6">
-        <LanguageToggle />
-      </div>
+    <ViewportScaler baseWidth={1000} baseHeight={600}>
+      <div className="h-full w-full felt-bg flex flex-col items-center justify-center p-4 relative">
+        <div className="absolute top-6 right-6 flex items-center gap-2">
+          <FullscreenToggle />
+          <LanguageToggle />
+        </div>
 
-      {/* Title */}
-      <div className="mb-16 text-center">
-        <h1 className="text-6xl md:text-8xl font-bold font-title text-foreground tracking-wider drop-shadow-md">
-          RRENASH
-        </h1>
-        <p className="text-foreground/70 mt-3 text-sm md:text-base font-medium">
-          {t.gameSubtitle}
-        </p>
-      </div>
+        {/* Title */}
+        <div className="mb-16 text-center">
+          <h1 className="text-6xl md:text-8xl font-bold font-title text-foreground tracking-wider drop-shadow-md">
+            RRENASH
+          </h1>
+          <p className="text-foreground/70 mt-3 text-sm md:text-base font-medium">
+            {t.gameSubtitle}
+          </p>
+        </div>
 
-      {/* Menu buttons */}
-      <div className="flex flex-col items-center gap-4 w-full max-w-xs">
-        <button
-          onClick={() => setShowPlayerSetup(true)}
-          className="w-full py-3.5 text-lg font-semibold text-primary-foreground bg-primary rounded-full hover:brightness-110 transition-all shadow-md hover:scale-105"
-        >
-          {t.startGame}
-        </button>
+        {/* Menu buttons */}
+        <div className="flex flex-col items-center gap-4 w-full max-w-xs">
+          {onOnlinePlay && (
+            <button
+              onClick={onOnlinePlay}
+              className="w-full py-4 text-xl font-bold text-primary-foreground bg-primary rounded-full hover:brightness-110 transition-all shadow-lg hover:scale-105 flex items-center justify-center gap-2"
+            >
+              <Globe className="w-6 h-6" />
+              {onlineText}
+            </button>
+          )}
 
-        {onOnlinePlay && (
           <button
-            onClick={onOnlinePlay}
-            className="w-full py-3.5 text-lg font-semibold text-secondary-foreground bg-secondary border border-secondary/50 rounded-full hover:brightness-110 transition-all shadow-md hover:scale-105"
+            onClick={() => setShowRules(true)}
+            className="w-full py-3.5 text-lg font-semibold text-foreground/80 bg-secondary/30 border border-border rounded-full hover:bg-secondary/50 transition-all hover:scale-105 flex items-center justify-center gap-2"
           >
-            {onlineText}
+            <GraduationCap className="w-5 h-5" />
+            {rulesTitle}
           </button>
-        )}
+        </div>
 
-        <button
-          onClick={() => setShowRules(true)}
-          className="w-full py-3.5 text-lg font-medium text-background/80 border border-background/30 rounded-full hover:bg-background/10 transition-all hover:scale-105"
-        >
-          {rulesTitle}
-        </button>
-      </div>
-
-      {/* Rules Dialog */}
-      <Dialog open={showRules} onOpenChange={setShowRules}>
+        {/* Rules Dialog */}
+        <Dialog open={showRules} onOpenChange={setShowRules}>
         <DialogContent className="max-w-lg bg-card border-border">
           <DialogHeader>
             <DialogTitle className="text-2xl text-primary">{t.howToPlay}</DialogTitle>
@@ -153,6 +152,6 @@ export function GameSetup({ onStartGame, onOnlinePlay }: GameSetupProps) {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </ViewportScaler>
   );
 }

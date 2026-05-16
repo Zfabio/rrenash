@@ -6,6 +6,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageToggle } from './LanguageToggle';
 import { MultiplayerContextType } from '@/types/multiplayer';
 import { Users, Copy, Check, ArrowLeft, Loader2 } from 'lucide-react';
+import { ViewportScaler } from './ViewportScaler';
+import { FullscreenToggle } from './FullscreenToggle';
 
 interface OnlineLobbyProps {
   multiplayer: MultiplayerContextType;
@@ -91,247 +93,267 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
   // In waiting room
   if (room) {
     return (
-      <div className="min-h-screen felt-bg flex items-center justify-center p-4">
-        <Card className="w-full max-w-md shadow-2xl">
-          <CardHeader className="text-center">
-            <div className="flex justify-between items-center mb-2">
-              <Button variant="ghost" size="sm" onClick={leaveRoom}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                {txt.leave}
-              </Button>
-              <LanguageToggle />
-            </div>
-            <CardTitle className="text-4xl font-bold font-title text-foreground tracking-wider drop-shadow-sm">{t.gameTitle}</CardTitle>
-            <CardDescription>{txt.waitingForPlayers}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Room code display */}
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-2">{txt.shareCode}</p>
-              <div className="flex items-center justify-center gap-2">
-                <div className="text-3xl font-mono font-bold tracking-widest bg-muted px-4 py-2 rounded-lg">
-                  {room.room_code}
-                </div>
-                <Button variant="outline" size="icon" onClick={copyCode}>
-                  {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+      <ViewportScaler baseWidth={1000} baseHeight={600}>
+        <div className="h-full w-full felt-bg flex items-center justify-center p-4 relative">
+          <Card className="w-full max-w-md shadow-2xl relative">
+            <CardHeader className="text-center">
+              <div className="flex justify-between items-center mb-2">
+                <Button variant="ghost" size="sm" onClick={leaveRoom}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  {txt.leave}
                 </Button>
+                <div className="flex items-center gap-2">
+                  <FullscreenToggle />
+                  <LanguageToggle />
+                </div>
               </div>
-            </div>
-
-            {/* Players list */}
-            <div>
-              <h3 className="font-semibold mb-2 flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                {txt.players} ({players.length}/{room.max_players})
-              </h3>
-              <div className="space-y-2">
-                {players.map((player) => (
-                  <div 
-                    key={player.id} 
-                    className="flex items-center justify-between p-3 bg-muted rounded-lg"
-                  >
-                    <span className="font-medium">{player.nickname}</span>
-                    <div className="flex items-center gap-2">
-                      {player.is_host && (
-                        <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded">
-                          {txt.host}
-                        </span>
-                      )}
-                      <span className="text-xs text-primary">{txt.connected}</span>
-                    </div>
+              <CardTitle className="text-4xl font-bold font-title text-foreground tracking-wider drop-shadow-sm">{t.gameTitle}</CardTitle>
+              <CardDescription>{txt.waitingForPlayers}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Room code display */}
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground mb-2">{txt.shareCode}</p>
+                <div className="flex items-center justify-center gap-2">
+                  <div className="text-3xl font-mono font-bold tracking-widest bg-muted px-4 py-2 rounded-lg">
+                    {room.room_code}
                   </div>
-                ))}
+                  <Button variant="outline" size="icon" onClick={copyCode}>
+                    {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                  </Button>
+                </div>
               </div>
-            </div>
 
-            {/* Game settings */}
-            <div className="text-sm text-muted-foreground text-center">
-              {txt.rounds}: {room.total_rounds} | {txt.maxPlayers}: {room.max_players}
-            </div>
+              {/* Players list */}
+              <div>
+                <h3 className="font-semibold mb-2 flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  {txt.players} ({players.length}/{room.max_players})
+                </h3>
+                <div className="space-y-2">
+                  {players.map((player) => (
+                    <div 
+                      key={player.id} 
+                      className="flex items-center justify-between p-3 bg-muted rounded-lg"
+                    >
+                      <span className="font-medium">{player.nickname}</span>
+                      <div className="flex items-center gap-2">
+                        {player.is_host && (
+                          <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded">
+                            {txt.host}
+                          </span>
+                        )}
+                        <span className="text-xs text-primary">{txt.connected}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-            {/* Start button (host only) */}
-            {isHost && (
-              <Button 
-                className="w-full" 
-                size="lg"
-                onClick={startGame}
-                disabled={players.length < 2}
-              >
-                {players.length < 2 ? txt.minPlayers : txt.startGame}
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+              {/* Game settings */}
+              <div className="text-sm text-muted-foreground text-center">
+                {txt.rounds}: {room.total_rounds} | {txt.maxPlayers}: {room.max_players}
+              </div>
+
+              {/* Start button (host only) */}
+              {isHost && (
+                <Button 
+                  className="w-full" 
+                  size="lg"
+                  onClick={startGame}
+                  disabled={players.length < 2}
+                >
+                  {players.length < 2 ? txt.minPlayers : txt.startGame}
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </ViewportScaler>
     );
   }
 
   // Menu
   if (mode === 'menu') {
     return (
-      <div className="min-h-screen felt-bg flex items-center justify-center p-4">
-        <Card className="w-full max-w-md shadow-2xl">
-          <CardHeader className="text-center">
-            <div className="flex justify-between items-center mb-2">
-              <Button variant="ghost" size="sm" onClick={onBack}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                {txt.back}
+      <ViewportScaler baseWidth={1000} baseHeight={600}>
+        <div className="h-full w-full felt-bg flex items-center justify-center p-4 relative">
+          <Card className="w-full max-w-md shadow-2xl relative">
+            <CardHeader className="text-center">
+              <div className="flex justify-between items-center mb-2">
+                <Button variant="ghost" size="sm" onClick={onBack}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  {txt.back}
+                </Button>
+                <div className="flex items-center gap-2">
+                  <FullscreenToggle />
+                  <LanguageToggle />
+                </div>
+              </div>
+              <CardTitle className="text-4xl font-bold font-title text-foreground tracking-wider drop-shadow-sm">{t.gameTitle}</CardTitle>
+              <CardDescription>{txt.onlinePlay}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Button 
+                className="w-full" 
+                size="lg" 
+                onClick={() => setMode('create')}
+              >
+                {txt.createRoom}
               </Button>
-              <LanguageToggle />
-            </div>
-            <CardTitle className="text-4xl font-bold font-title text-foreground tracking-wider drop-shadow-sm">{t.gameTitle}</CardTitle>
-            <CardDescription>{txt.onlinePlay}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button 
-              className="w-full" 
-              size="lg" 
-              onClick={() => setMode('create')}
-            >
-              {txt.createRoom}
-            </Button>
-            <Button 
-              className="w-full" 
-              size="lg" 
-              variant="outline"
-              onClick={() => setMode('join')}
-            >
-              {txt.joinRoom}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+              <Button 
+                className="w-full" 
+                size="lg" 
+                variant="outline"
+                onClick={() => setMode('join')}
+              >
+                {txt.joinRoom}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </ViewportScaler>
     );
   }
 
   // Create room form
   if (mode === 'create') {
     return (
-      <div className="min-h-screen felt-bg flex items-center justify-center p-4">
-        <Card className="w-full max-w-md shadow-2xl">
-          <CardHeader className="text-center">
-            <div className="flex justify-between items-center mb-2">
-              <Button variant="ghost" size="sm" onClick={() => setMode('menu')}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                {txt.back}
+      <ViewportScaler baseWidth={1000} baseHeight={600}>
+        <div className="h-full w-full felt-bg flex items-center justify-center p-4 relative">
+          <Card className="w-full max-w-md shadow-2xl relative">
+            <CardHeader className="text-center">
+              <div className="flex justify-between items-center mb-2">
+                <Button variant="ghost" size="sm" onClick={() => setMode('menu')}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  {txt.back}
+                </Button>
+                <div className="flex items-center gap-2">
+                  <FullscreenToggle />
+                  <LanguageToggle />
+                </div>
+              </div>
+              <CardTitle className="text-2xl font-serif text-primary tracking-wide">{txt.createRoom}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">{txt.nickname}</label>
+                <Input 
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  placeholder="Enter your name"
+                  maxLength={20}
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">{txt.maxPlayers}</label>
+                <div className="flex gap-2 mt-1">
+                  {[2, 3, 4].map((n) => (
+                    <Button
+                      key={n}
+                      variant={maxPlayers === n ? 'default' : 'outline'}
+                      onClick={() => setMaxPlayers(n)}
+                      className="flex-1"
+                    >
+                      {n}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium">{txt.rounds}</label>
+                <div className="flex gap-2 mt-1">
+                  {[1, 2, 3, 5].map((n) => (
+                    <Button
+                      key={n}
+                      variant={totalRounds === n ? 'default' : 'outline'}
+                      onClick={() => setTotalRounds(n)}
+                      className="flex-1"
+                    >
+                      {n}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {error && (
+                <p className="text-sm text-destructive">{error}</p>
+              )}
+
+              <Button 
+                className="w-full" 
+                size="lg"
+                onClick={handleCreate}
+                disabled={!nickname.trim() || isLoading}
+              >
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                {txt.create}
               </Button>
-              <LanguageToggle />
-            </div>
-            <CardTitle className="text-2xl font-serif text-primary tracking-wide">{txt.createRoom}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">{txt.nickname}</label>
-              <Input 
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
-                placeholder="Enter your name"
-                maxLength={20}
-              />
-            </div>
-            
-            <div>
-              <label className="text-sm font-medium">{txt.maxPlayers}</label>
-              <div className="flex gap-2 mt-1">
-                {[2, 3, 4].map((n) => (
-                  <Button
-                    key={n}
-                    variant={maxPlayers === n ? 'default' : 'outline'}
-                    onClick={() => setMaxPlayers(n)}
-                    className="flex-1"
-                  >
-                    {n}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">{txt.rounds}</label>
-              <div className="flex gap-2 mt-1">
-                {[1, 2, 3, 5].map((n) => (
-                  <Button
-                    key={n}
-                    variant={totalRounds === n ? 'default' : 'outline'}
-                    onClick={() => setTotalRounds(n)}
-                    className="flex-1"
-                  >
-                    {n}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
-
-            <Button 
-              className="w-full" 
-              size="lg"
-              onClick={handleCreate}
-              disabled={!nickname.trim() || isLoading}
-            >
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              {txt.create}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
+      </ViewportScaler>
     );
   }
 
   // Join room form
-  return (
-    <div className="min-h-screen felt-bg flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-2xl">
-        <CardHeader className="text-center">
-          <div className="flex justify-between items-center mb-2">
-            <Button variant="ghost" size="sm" onClick={() => setMode('menu')}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              {txt.back}
-            </Button>
-            <LanguageToggle />
-          </div>
-          <CardTitle className="text-2xl font-serif text-primary tracking-wide">{txt.joinRoom}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="text-sm font-medium">{txt.nickname}</label>
-            <Input 
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              placeholder="Enter your name"
-              maxLength={20}
-            />
-          </div>
-          
-          <div>
-            <label className="text-sm font-medium">{txt.roomCodeLabel}</label>
-            <Input 
-              value={roomCode}
-              onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-              placeholder={txt.enterCode}
-              maxLength={6}
-              className="font-mono text-center text-xl tracking-widest"
-            />
-          </div>
+    return (
+      <ViewportScaler baseWidth={1000} baseHeight={600}>
+        <div className="h-full w-full felt-bg flex items-center justify-center p-4 relative">
+          <Card className="w-full max-w-md shadow-2xl relative">
+            <CardHeader className="text-center">
+              <div className="flex justify-between items-center mb-2">
+                <Button variant="ghost" size="sm" onClick={() => setMode('menu')}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  {txt.back}
+                </Button>
+                <div className="flex items-center gap-2">
+                  <FullscreenToggle />
+                  <LanguageToggle />
+                </div>
+              </div>
+              <CardTitle className="text-2xl font-serif text-primary tracking-wide">{txt.joinRoom}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">{txt.nickname}</label>
+                <Input 
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  placeholder="Enter your name"
+                  maxLength={20}
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">{txt.roomCodeLabel}</label>
+                <Input 
+                  value={roomCode}
+                  onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                  placeholder={txt.enterCode}
+                  maxLength={6}
+                  className="font-mono text-center text-xl tracking-widest"
+                />
+              </div>
 
-          {error && (
-            <p className="text-sm text-destructive">{error}</p>
-          )}
+              {error && (
+                <p className="text-sm text-destructive">{error}</p>
+              )}
 
-          <Button 
-            className="w-full" 
-            size="lg"
-            onClick={handleJoin}
-            disabled={!nickname.trim() || roomCode.length !== 6 || isLoading}
-          >
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-            {txt.join}
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
+              <Button 
+                className="w-full" 
+                size="lg"
+                onClick={handleJoin}
+                disabled={!nickname.trim() || roomCode.length !== 6 || isLoading}
+              >
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                {txt.join}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </ViewportScaler>
+    );
 }
