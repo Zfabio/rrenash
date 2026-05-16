@@ -112,7 +112,7 @@ export function GameSetup({ onStartGame, onOnlinePlay }: GameSetupProps) {
           {onOnlinePlay && (
             <button
               onClick={onOnlinePlay}
-              className="w-full py-4 text-xl font-bold text-primary-foreground bg-primary rounded-full hover:brightness-110 transition-all shadow-lg hover:scale-105 flex items-center justify-center gap-2"
+              className="w-full py-4 text-xl font-bold text-primary-foreground bg-primary rounded-full hover:brightness-110 transition-all shadow-lg hover:scale-105 flex items-center justify-center"
             >
               <Globe className="w-6 h-6" />
               {onlineText}
@@ -121,7 +121,7 @@ export function GameSetup({ onStartGame, onOnlinePlay }: GameSetupProps) {
 
           <button
             onClick={() => setShowRules(true)}
-            className="w-full py-3.5 text-lg font-semibold text-foreground/80 bg-secondary/30 border border-border rounded-full hover:bg-secondary/50 transition-all hover:scale-105 flex items-center justify-center gap-2"
+            className="w-full py-3.5 text-lg font-semibold text-foreground/80 bg-secondary/30 border border-border rounded-full hover:bg-secondary/50 transition-all hover:scale-105 flex items-center justify-center"
           >
             <GraduationCap className="w-5 h-5" />
             {rulesTitle}
@@ -153,7 +153,8 @@ export function GameSetup({ onStartGame, onOnlinePlay }: GameSetupProps) {
             </div>
           </div>
         </DialogContent>
-      </Dialog>
+        </Dialog>
+      </div>
     </ViewportScaler>
   );
 }
