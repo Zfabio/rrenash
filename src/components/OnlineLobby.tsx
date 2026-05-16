@@ -108,7 +108,7 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
                 </div>
               </div>
               <div className="flex justify-center mb-2">
-                <img src="logo.png" alt="RRENASH" className="h-16 w-auto" />
+                <img src="logo.png" alt="RRENASH" className="h-16 w-auto mix-blend-multiply" />
               </div>
               <CardDescription>{txt.waitingForPlayers}</CardDescription>
             </CardHeader>
@@ -193,7 +193,7 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
                 </div>
               </div>
               <div className="flex justify-center mb-2">
-                <img src="logo.png" alt="RRENASH" className="h-16 w-auto" />
+                <img src="logo.png" alt="RRENASH" className="h-16 w-auto mix-blend-multiply" />
               </div>
               <CardDescription>{txt.onlinePlay}</CardDescription>
             </CardHeader>
