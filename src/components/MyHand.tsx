@@ -29,23 +29,34 @@ export function MyHand({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const isLandscape = !isPortrait && isMobile;
+  // We will always use 'lg' so cards look bigger
+  const cardSize = 'lg';
+  const cardW = 68;
+  const cardH = 98;
 
-  // Use smaller sizing for landscape! 'sm' for landscape mobile, 'md' for portrait mobile, 'lg' for PC.
-  const cardSize = isLandscape ? 'sm' : (isMobile ? 'md' : 'lg');
-  const cardW = cardSize === 'sm' ? 38 : (cardSize === 'md' ? 52 : 68);
-  const cardH = cardSize === 'sm' ? 54 : (cardSize === 'md' ? 74 : 98);
-
-  const maxWidth = isMobile ? window.innerWidth - 16 : Math.min(window.innerWidth - 40, 700);
-
-  // Increase spacing since cards are bigger
-  const idealSpacing = cardSize === 'sm' ? 22 : (isMobile ? 32 : 46);
+  // The virtual container matches ViewportScaler's dynamicWidth calculation
+  const winW = window.innerWidth;
+  const winH = window.innerHeight;
+  const isLandscape = winW >= winH;
+  const dynamicWidth = isLandscape ? winW * (600 / winH) : 600;
   
-  // Calculate how many fit natively by math, but also add a hard cap 
-  // so it never looks too squished (max 8 per row on mobile, max 10 on PC, max 16 on landscape mobile)
-  const calcMax = Math.max(1, Math.floor((maxWidth - cardW) / idealSpacing) + 1);
-  const maxLimit = isLandscape ? 16 : (isMobile ? 8 : 10);
-  const maxCardsPerRow = Math.min(maxLimit, calcMax);
+  // We use 90% of the virtual container width to fit cards
+  const maxWidth = dynamicWidth * 0.9;
+
+  // We want to fit EVERYTHING in one row if possible.
+  // We calculate the required spacing to fit all cards.
+  const maxSpacing = 46;
+  const minSpacing = 15; // Minimum spacing before it looks too squished
+  
+  let idealSpacing = maxSpacing;
+  if (total > 1) {
+    const requiredSpacing = (maxWidth - cardW) / (total - 1);
+    idealSpacing = Math.max(minSpacing, Math.min(maxSpacing, requiredSpacing));
+  }
+
+  // Determine how many we can fit in a row before splitting (only if extremely squished)
+  const calcMax = Math.max(1, Math.floor((maxWidth - cardW) / minSpacing) + 1);
+  const maxCardsPerRow = Math.min(25, calcMax); // We allow up to 25 cards in a single row!
   
   // If we have more cards than the limit, split into multiple rows
   const numRows = total === 0 ? 0 : Math.ceil(total / maxCardsPerRow);
@@ -58,9 +69,9 @@ export function MyHand({
     rows.push(player.hand.slice(i * cardsPerRow, (i + 1) * cardsPerRow));
   }
 
-  // Helper values for fanning Effect
-  const getArcDepth = (rowTotal: number) => rowTotal > 14 ? 22 : rowTotal > 10 ? 16 : rowTotal > 6 ? 10 : 6;
-  const getAnglePer = (rowTotal: number) => rowTotal > 14 ? 0.8 : rowTotal > 10 ? 1.2 : 1.8;
+  // Helper values for fanning Effect - increased depth for single huge rows
+  const getArcDepth = (rowTotal: number) => rowTotal > 15 ? 35 : rowTotal > 10 ? 25 : rowTotal > 6 ? 15 : 8;
+  const getAnglePer = (rowTotal: number) => rowTotal > 15 ? 0.6 : rowTotal > 10 ? 1.0 : 1.8;
 
   return (
     <div className="flex flex-col items-center w-full px-2" style={{ paddingBottom: '16px' }}>

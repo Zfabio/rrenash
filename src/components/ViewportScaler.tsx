@@ -21,27 +21,29 @@ export const ViewportScaler: React.FC<ViewportScalerProps> = ({
       const winW = window.innerWidth;
       const winH = window.innerHeight;
       
-      // On mobile (portrait-like), we scale by width and expand height
-      // We reduce the effective baseWidth so everything inside renders MUCH larger!
-      const isMobile = winW < 768 || winH > winW;
+      // We want to completely eliminate black bars (letterboxing).
+      // We scale the UI so the container natively fills the screen.
+      const isLandscape = winW >= winH;
       
-      if (isMobile) {
-        // Use a much smaller base width for mobile so the relative scale is higher
-        const mobileBaseWidth = Math.min(winW, 600); // Cards will be 1000/600 = 1.66x larger
-        const newScale = winW / mobileBaseWidth;
-        setScale(newScale);
-        
-        // We set the dynamic width and height to match the new scale
-        setDynamicWidth(mobileBaseWidth);
-        setDynamicHeight(winH / newScale);
+      let newScale: number;
+      let newDynamicWidth: number;
+      let newDynamicHeight: number;
+
+      if (isLandscape) {
+        // In landscape, fix the height to baseHeight (600) and expand width
+        newDynamicHeight = baseHeight;
+        newScale = winH / newDynamicHeight;
+        newDynamicWidth = winW / newScale;
       } else {
-        const scaleX = winW / baseWidth;
-        const scaleY = winH / baseHeight;
-        const newScale = Math.min(scaleX, scaleY);
-        setScale(newScale);
-        setDynamicWidth(baseWidth);
-        setDynamicHeight(baseHeight);
+        // In portrait, fix the width to 600 and expand height
+        newDynamicWidth = 600;
+        newScale = winW / newDynamicWidth;
+        newDynamicHeight = winH / newScale;
       }
+
+      setScale(newScale);
+      setDynamicWidth(newDynamicWidth);
+      setDynamicHeight(newDynamicHeight);
     };
 
     updateScale();
