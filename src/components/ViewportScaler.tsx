@@ -12,6 +12,7 @@ export const ViewportScaler: React.FC<ViewportScalerProps> = ({
   baseHeight = 600 
 }) => {
   const [scale, setScale] = useState(1);
+  const [dynamicWidth, setDynamicWidth] = useState(baseWidth);
   const [dynamicHeight, setDynamicHeight] = useState(baseHeight);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -21,17 +22,24 @@ export const ViewportScaler: React.FC<ViewportScalerProps> = ({
       const winH = window.innerHeight;
       
       // On mobile (portrait-like), we scale by width and expand height
+      // We reduce the effective baseWidth so everything inside renders MUCH larger!
       const isMobile = winW < 768 || winH > winW;
       
       if (isMobile) {
-        const newScale = winW / baseWidth;
+        // Use a much smaller base width for mobile so the relative scale is higher
+        const mobileBaseWidth = Math.min(winW, 600); // Cards will be 1000/600 = 1.66x larger
+        const newScale = winW / mobileBaseWidth;
         setScale(newScale);
+        
+        // We set the dynamic width and height to match the new scale
+        setDynamicWidth(mobileBaseWidth);
         setDynamicHeight(winH / newScale);
       } else {
         const scaleX = winW / baseWidth;
         const scaleY = winH / baseHeight;
         const newScale = Math.min(scaleX, scaleY);
         setScale(newScale);
+        setDynamicWidth(baseWidth);
         setDynamicHeight(baseHeight);
       }
     };
@@ -54,7 +62,7 @@ export const ViewportScaler: React.FC<ViewportScalerProps> = ({
       <div 
         ref={containerRef}
         style={{
-          width: `${baseWidth}px`,
+          width: `${dynamicWidth}px`,
           height: `${dynamicHeight}px`,
           transform: `scale(${scale})`,
           transformOrigin: 'center center',

@@ -456,9 +456,9 @@ export function useMultiplayer(): MultiplayerContextType {
     let newRoundWinner = gameState.round_winner;
 
     // Check if the challenged player just finished their hand AND was honest!
-    // We check the log to see if they played their last card, or check their hand length.
+    // We check the log to see if they played their last card, because opponent hands are hidden (length 0) from clients.
     const lastLogEntries = gameState.log.slice(-5);
-    const lastPlayerFinishedHand = lastLogEntries.some(l => l.includes(`${challengedPlayer.nickname} played their last card`)) || challengedPlayer.hand.length === 0;
+    const lastPlayerFinishedHand = lastLogEntries.some(l => l.includes(`${challengedPlayer.nickname} played their last card`));
 
     if (!wasBluff && lastPlayerFinishedHand && !newFinishedPlayers.includes(challengedPlayerId)) {
       newFinishedPlayers = [...newFinishedPlayers, challengedPlayerId];

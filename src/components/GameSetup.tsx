@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Play, ArrowLeft, Globe, GraduationCap } from 'lucide-react';
 import { ViewportScaler } from './ViewportScaler';
 import { FullscreenToggle } from './FullscreenToggle';
+import { Logo } from './Logo';
 
 interface GameSetupProps {
   onStartGame: (numPlayers: number, targetScore: number) => void;
@@ -97,11 +98,7 @@ export function GameSetup({ onStartGame, onOnlinePlay }: GameSetupProps) {
 
         {/* Logo */}
         <div className="mb-12 text-center animate-in fade-in zoom-in duration-700">
-          <img 
-            src="logo.svg" 
-            alt="RRENASH" 
-            className="w-64 md:w-80 h-auto drop-shadow-2xl"
-          />
+          <Logo size="lg" className="mb-4" />
           <p className="text-foreground/70 -mt-4 text-sm md:text-base font-medium">
             {t.gameSubtitle}
           </p>

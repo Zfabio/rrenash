@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { LogOut, MessageSquare, X } from 'lucide-react';
 import { FullscreenToggle } from './FullscreenToggle';
 import { ViewportScaler } from './ViewportScaler';
+import { Logo } from './Logo';
 
 interface OnlineGameBoardProps {
   multiplayer: MultiplayerContextType;
@@ -198,7 +199,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
             >
               <LogOut className="h-3.5 w-3.5" />
             </button>
-            <img src="logo.svg" alt="RRENASH" className="h-8 md:h-10 w-auto" />
+            <Logo size="sm" />
           </div>
 
           {/* Right: Fullscreen + Pile + Log */}

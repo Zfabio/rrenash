@@ -13,6 +13,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { LogOut } from 'lucide-react';
 import { FullscreenToggle } from './FullscreenToggle';
 import { ViewportScaler } from './ViewportScaler';
+import { Logo } from './Logo';
 import { 
   initializeGame, 
   getNextPlayer, 
@@ -428,7 +429,7 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
             <button onClick={onBackToSetup} className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-foreground/20 transition-colors">
               <LogOut className="h-3.5 w-3.5" />
             </button>
-            <img src="logo.svg" alt="RRENASH" className="h-8 md:h-10 w-auto" />
+            <Logo size="sm" />
           </div>
           <div className="flex items-center gap-2">
             <FullscreenToggle />

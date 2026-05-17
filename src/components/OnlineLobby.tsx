@@ -8,6 +8,7 @@ import { MultiplayerContextType } from '@/types/multiplayer';
 import { Users, Copy, Check, ArrowLeft, Loader2 } from 'lucide-react';
 import { ViewportScaler } from './ViewportScaler';
 import { FullscreenToggle } from './FullscreenToggle';
+import { Logo } from './Logo';
 
 interface OnlineLobbyProps {
   multiplayer: MultiplayerContextType;
@@ -107,8 +108,8 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
                   <LanguageToggle />
                 </div>
               </div>
-              <div className="flex justify-center mb-2">
-                <img src="logo.svg" alt="RRENASH" className="h-16 w-auto" />
+              <div className="flex justify-center mb-6">
+                <Logo size="md" />
               </div>
               <CardDescription>{txt.waitingForPlayers}</CardDescription>
             </CardHeader>
@@ -192,8 +193,8 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
                   <LanguageToggle />
                 </div>
               </div>
-              <div className="flex justify-center mb-2">
-                <img src="logo.svg" alt="RRENASH" className="h-16 w-auto" />
+              <div className="flex justify-center mb-6">
+                <Logo size="md" />
               </div>
               <CardDescription>{txt.onlinePlay}</CardDescription>
             </CardHeader>
