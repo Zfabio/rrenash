@@ -12,6 +12,7 @@ export const ViewportScaler: React.FC<ViewportScalerProps> = ({
   baseHeight = 600 
 }) => {
   const [scale, setScale] = useState(1);
+  const [dynamicHeight, setDynamicHeight] = useState(baseHeight);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -19,12 +20,20 @@ export const ViewportScaler: React.FC<ViewportScalerProps> = ({
       const winW = window.innerWidth;
       const winH = window.innerHeight;
       
-      // Calculate scale to fit both width and height
-      const scaleX = winW / baseWidth;
-      const scaleY = winH / baseHeight;
-      const newScale = Math.min(scaleX, scaleY);
+      // On mobile (portrait-like), we scale by width and expand height
+      const isMobile = winW < 768 || winH > winW;
       
-      setScale(newScale);
+      if (isMobile) {
+        const newScale = winW / baseWidth;
+        setScale(newScale);
+        setDynamicHeight(winH / newScale);
+      } else {
+        const scaleX = winW / baseWidth;
+        const scaleY = winH / baseHeight;
+        const newScale = Math.min(scaleX, scaleY);
+        setScale(newScale);
+        setDynamicHeight(baseHeight);
+      }
     };
 
     updateScale();
@@ -46,7 +55,7 @@ export const ViewportScaler: React.FC<ViewportScalerProps> = ({
         ref={containerRef}
         style={{
           width: `${baseWidth}px`,
-          height: `${baseHeight}px`,
+          height: `${dynamicHeight}px`,
           transform: `scale(${scale})`,
           transformOrigin: 'center center',
           flexShrink: 0,

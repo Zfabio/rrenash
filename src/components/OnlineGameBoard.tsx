@@ -173,8 +173,8 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
   return (
     <ViewportScaler baseWidth={1000} baseHeight={600}>
       <div className="h-full w-full overflow-hidden felt-bg relative select-none">
-        {/* Round end / Game over overlay */}
-        {(gameState.game_phase === 'roundEnd' || gameState.game_phase === 'gameOver') && (
+        {/* Round end / Game over overlay or Spectator Waiting */}
+        {(gameState.game_phase === 'roundEnd' || gameState.game_phase === 'gameOver' || isSpectator) && (
           <RoundEndOverlay
             players={players}
             gameState={gameState}
@@ -184,6 +184,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
             totalRounds={room.total_rounds}
             onNextRound={handleNextRound}
             onLeave={handleLeave}
+            isWaitingForOthers={isSpectator && gameState.game_phase === 'playing'}
           />
         )}
 
@@ -197,7 +198,7 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
             >
               <LogOut className="h-3.5 w-3.5" />
             </button>
-            <img src="logo.png" alt="RRENASH" className="h-8 md:h-10 w-auto brightness-110 mix-blend-multiply" />
+            <img src="logo.svg" alt="RRENASH" className="h-8 md:h-10 w-auto" />
           </div>
 
           {/* Right: Fullscreen + Pile + Log */}

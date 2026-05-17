@@ -13,6 +13,7 @@ interface RoundEndOverlayProps {
   totalRounds: number;
   onNextRound: () => void;
   onLeave: () => void;
+  isWaitingForOthers?: boolean;
 }
 
 export function RoundEndOverlay({
@@ -23,7 +24,8 @@ export function RoundEndOverlay({
   currentRound,
   totalRounds,
   onNextRound,
-  onLeave
+  onLeave,
+  isWaitingForOthers = false
 }: RoundEndOverlayProps) {
   const { language } = useLanguage();
   const isMobile = useIsMobile();
@@ -38,8 +40,10 @@ export function RoundEndOverlay({
       nextRound: 'Next Round',
       newGame: 'New Game',
       waitingForHost: 'Waiting for host...',
+      waitingForOthers: 'Waiting for others to finish...',
       points: 'pts',
-      round: 'Round'
+      round: 'Round',
+      youFinished: 'You Finished!'
     },
     sq: {
       roundOver: 'Raundi Mbaroi!',
@@ -50,8 +54,10 @@ export function RoundEndOverlay({
       nextRound: 'Raundi Tjetër',
       newGame: 'Lojë e Re',
       waitingForHost: 'Duke pritur nikoqirin...',
+      waitingForOthers: 'Duke pritur të tjerët të mbarojnë...',
       points: 'pikë',
-      round: 'Raund'
+      round: 'Raund',
+      youFinished: 'Ti Mbarove!'
     }
   };
 
@@ -85,14 +91,14 @@ export function RoundEndOverlay({
             "font-bold text-primary mb-1",
             isMobile ? "text-xl" : "text-3xl"
           )}>
-            {isGameOver ? '🎊' : '🏆'} {isGameOver ? txt.gameOver : txt.roundOver}
+            {isGameOver ? '🎊' : '🏆'} {isWaitingForOthers ? txt.youFinished : isGameOver ? txt.gameOver : txt.roundOver}
           </div>
-          {!isGameOver && (
+          {!isGameOver && !isWaitingForOthers && (
             <p className="text-muted-foreground text-sm">
               {txt.round} {currentRound} / {totalRounds}
             </p>
           )}
-          {isGameOver && (
+          {isGameOver && !isWaitingForOthers && (
             <p className={cn(
               "text-primary font-medium",
               isMobile ? "text-sm" : "text-lg"
@@ -103,7 +109,7 @@ export function RoundEndOverlay({
         </div>
 
         {/* Round winner highlight */}
-        {roundWinnerPlayer && !isGameOver && (
+        {roundWinnerPlayer && !isGameOver && !isWaitingForOthers && (
           <div className={cn(
             "bg-primary/10 rounded-lg mb-4",
             isMobile ? "p-3" : "p-4"
@@ -133,7 +139,7 @@ export function RoundEndOverlay({
                 className={cn(
                   "flex items-center justify-between rounded-lg transition-all",
                   isMobile ? "p-2" : "p-3",
-                  idx === 0 ? "bg-primary/20 border border-primary/30" : "bg-muted/50"
+                  idx === 0 && !isWaitingForOthers ? "bg-primary/20 border border-primary/30" : "bg-muted/50"
                 )}
               >
                 <div className="flex items-center gap-2">
@@ -143,7 +149,7 @@ export function RoundEndOverlay({
                   <span className={cn(
                     "font-medium",
                     isMobile ? "text-sm" : "text-base",
-                    idx === 0 && "text-primary"
+                    idx === 0 && !isWaitingForOthers && "text-primary"
                   )}>
                     {player.nickname}
                   </span>
@@ -156,7 +162,7 @@ export function RoundEndOverlay({
                 <span className={cn(
                   "font-bold",
                   isMobile ? "text-sm" : "text-base",
-                  idx === 0 && "text-primary"
+                  idx === 0 && !isWaitingForOthers && "text-primary"
                 )}>
                   {player.score} {txt.points}
                 </span>
@@ -167,7 +173,18 @@ export function RoundEndOverlay({
 
         {/* Action buttons */}
         <div className="space-y-2">
-          {isGameOver ? (
+          {isWaitingForOthers ? (
+            <div className="flex flex-col items-center justify-center py-4 space-y-4">
+              <p className="text-muted-foreground text-sm font-medium animate-pulse">
+                {txt.waitingForOthers}
+              </p>
+              <div className="flex space-x-2">
+                <div className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+            </div>
+          ) : isGameOver ? (
             <Button 
               onClick={onLeave} 
               size="lg" 

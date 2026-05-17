@@ -380,23 +380,41 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
     <ViewportScaler baseWidth={1000} baseHeight={600}>
       <div className="h-full w-full overflow-hidden felt-bg relative select-none">
         {/* Round end overlay */}
-        {gameState.gamePhase === 'roundEnd' && (
+        {(gameState.gamePhase === 'roundEnd' || isSpectator) && (
           <div className="fixed inset-0 bg-background/90 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-card p-8 rounded-2xl text-center shadow-2xl border border-border max-w-sm w-full">
-              <h2 className="text-3xl font-bold text-primary mb-4">{t.roundOver}</h2>
-              <div className="space-y-2 mb-6">
-                {(gameState.finishedPlayers || []).map((playerId, idx) => (
-                  <div key={playerId} className="flex items-center justify-between px-4 py-2 rounded-lg bg-muted/50">
-                    <span className="text-foreground font-medium">
-                      {idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'} {gameState.players[playerId].name}
-                    </span>
-                    <span className="text-primary font-bold">+{calculateRoundPoints(idx + 1)}</span>
+              <h2 className="text-3xl font-bold text-primary mb-4">
+                {isSpectator && gameState.gamePhase === 'playing' ? (language === 'en' ? 'You Finished!' : 'Ti Mbarove!') : t.roundOver}
+              </h2>
+              
+              {isSpectator && gameState.gamePhase === 'playing' ? (
+                <div className="flex flex-col items-center justify-center py-4 space-y-4">
+                  <p className="text-muted-foreground text-sm font-medium animate-pulse">
+                    {language === 'en' ? 'Waiting for others to finish...' : 'Duke pritur të tjerët të mbarojnë...'}
+                  </p>
+                  <div className="flex space-x-2">
+                    <div className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
-                ))}
-              </div>
-              <Button onClick={handleNewRound} size="lg" className="bg-primary text-primary-foreground">
-                {t.nextRound}
-              </Button>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-2 mb-6">
+                    {(gameState.finishedPlayers || []).map((playerId, idx) => (
+                      <div key={playerId} className="flex items-center justify-between px-4 py-2 rounded-lg bg-muted/50">
+                        <span className="text-foreground font-medium">
+                          {idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'} {gameState.players[playerId].name}
+                        </span>
+                        <span className="text-primary font-bold">+{calculateRoundPoints(idx + 1)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Button onClick={handleNewRound} size="lg" className="bg-primary text-primary-foreground">
+                    {t.nextRound}
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -410,7 +428,7 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
             <button onClick={onBackToSetup} className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-foreground/20 transition-colors">
               <LogOut className="h-3.5 w-3.5" />
             </button>
-            <img src="logo.png" alt="RRENASH" className="h-8 md:h-10 w-auto brightness-110 mix-blend-multiply" />
+            <img src="logo.svg" alt="RRENASH" className="h-8 md:h-10 w-auto" />
           </div>
           <div className="flex items-center gap-2">
             <FullscreenToggle />

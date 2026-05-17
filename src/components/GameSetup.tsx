@@ -98,9 +98,9 @@ export function GameSetup({ onStartGame, onOnlinePlay }: GameSetupProps) {
         {/* Logo */}
         <div className="mb-12 text-center animate-in fade-in zoom-in duration-700">
           <img 
-            src="logo.png" 
+            src="logo.svg" 
             alt="RRENASH" 
-            className="w-64 md:w-80 h-auto drop-shadow-2xl brightness-110 mix-blend-multiply"
+            className="w-64 md:w-80 h-auto drop-shadow-2xl"
           />
           <p className="text-foreground/70 -mt-4 text-sm md:text-base font-medium">
             {t.gameSubtitle}

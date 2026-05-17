@@ -431,7 +431,6 @@ export function useMultiplayer(): MultiplayerContextType {
   const challenge = useCallback(async () => {
     if (!room || !gameState || !myPlayer || !gameState.claim) return;
 
-    // Prevent double-execution if the pile is already empty from a previous click
     if (gameState.pile.length === 0) return;
 
     const challengedPlayerId = gameState.claim.playerId;
@@ -448,12 +447,46 @@ export function useMultiplayer(): MultiplayerContextType {
     
     if (!loser) return;
 
-    const resultLog = wasBluff
+    let resultLog = wasBluff
       ? `${challengedPlayer.nickname} was bluffing! They take the pile (${gameState.pile.length} cards)`
       : `${challengedPlayer.nickname} was honest! ${myPlayer.nickname} takes the pile (${gameState.pile.length} cards)`;
 
-    // ONE ATOMIC UPDATE: Show the challenge result, but clear the pile instantly. 
-    // The UI handles showing the result for 2s independently. The Loser picks up `pileCards` from this snapshot.
+    let newFinishedPlayers = gameState.finished_players || [];
+    let newGamePhase = gameState.game_phase;
+    let newRoundWinner = gameState.round_winner;
+
+    // Check if the challenged player just finished their hand AND was honest!
+    // We check the log to see if they played their last card, or check their hand length.
+    const lastLogEntries = gameState.log.slice(-5);
+    const lastPlayerFinishedHand = lastLogEntries.some(l => l.includes(`${challengedPlayer.nickname} played their last card`)) || challengedPlayer.hand.length === 0;
+
+    if (!wasBluff && lastPlayerFinishedHand && !newFinishedPlayers.includes(challengedPlayerId)) {
+      newFinishedPlayers = [...newFinishedPlayers, challengedPlayerId];
+      const activePlayersRemaining = players.filter(p => !newFinishedPlayers.includes(p.player_order));
+      
+      const position = newFinishedPlayers.length;
+      const points = position === 1 ? 3 : position === 2 ? 2 : position === 3 ? 1 : 0;
+      
+      try {
+        await supabase
+          .from('game_players')
+          .update({ score: challengedPlayer.score + points })
+          .eq('id', challengedPlayer.id);
+      } catch (e) {
+        console.warn("Could not update score:", e);
+      }
+
+      resultLog += `\n🏆 ${challengedPlayer.nickname} finished in ${position === 1 ? '1st' : position === 2 ? '2nd' : position === 3 ? '3rd' : 'Last'} place!`;
+
+      if (activePlayersRemaining.length <= 1) {
+        const lastPlayerRemaining = activePlayersRemaining[0];
+        if (lastPlayerRemaining) newFinishedPlayers.push(lastPlayerRemaining.player_order);
+        newGamePhase = 'roundEnd';
+        newRoundWinner = newFinishedPlayers[0];
+        resultLog += `\n🏁 Round Over!`;
+      }
+    }
+
     await supabase
       .from('game_state')
       .update({
@@ -462,20 +495,20 @@ export function useMultiplayer(): MultiplayerContextType {
           challenged: challengedPlayerId,
           wasBluff,
           revealedCards: gameState.last_played_cards,
-          pileCards: gameState.pile, // Snapshot preserved internally inside the result!
+          pileCards: gameState.pile,
           timestamp: Date.now()
         },
         log: [...newLog, resultLog],
-        pile: [], // Clear table immediately!
+        pile: [],
         claim: null,
         last_played_cards: [],
-        current_player: loserOrder, // Turn passes to loser immediately!
-        consecutive_passes: 0
+        current_player: loserOrder,
+        consecutive_passes: 0,
+        finished_players: newFinishedPlayers,
+        game_phase: newGamePhase,
+        round_winner: newRoundWinner
       })
       .eq('room_id', room.id);
-
-    // Completely removed the `setTimeout` which was causing race conditions 
-    // and randomly deleting the game state cards!
   }, [room, gameState, myPlayer, players]);
 
   const pass = useCallback(async () => {
