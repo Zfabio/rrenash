@@ -8,7 +8,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
-import { OrientationLock } from "./components/OrientationLock";
+
 
 const queryClient = new QueryClient();
 
@@ -19,15 +19,13 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <OrientationLock>
-            <HashRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </HashRouter>
-          </OrientationLock>
+          <HashRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </HashRouter>
         </TooltipProvider>
       </ThemeProvider>
     </LanguageProvider>
