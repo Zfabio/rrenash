@@ -535,25 +535,29 @@ export function GameBoard({ numPlayers, totalRounds, onBackToSetup }: GameBoardP
         </div>
 
         {/* === BOTTOM: Controls + Hand === */}
-        <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center gap-2">
-          <GameControls
-            selectedCards={selectedCards}
-            currentClaim={gameState.claim}
-            canPlay={canPlay}
-            canChallenge={canChallenge}
-            canPass={canPass}
-            onPlay={handlePlay}
-            onChallenge={handleChallenge}
-            onPass={handlePass}
-          />
+        <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center gap-0 landscape:gap-1">
+          <div className="w-full relative z-10">
+            <MyHand
+              player={myPlayer}
+              isCurrentPlayer={gameState.currentPlayer === 0}
+              selectedCards={selectedCards}
+              onCardSelect={handleCardSelect}
+              disabled={!isHumanTurn || gameState.gamePhase !== 'playing' || isSpectator}
+            />
+          </div>
 
-          <MyHand
-            player={myPlayer}
-            isCurrentPlayer={gameState.currentPlayer === 0}
-            selectedCards={selectedCards}
-            onCardSelect={handleCardSelect}
-            disabled={!isHumanTurn || gameState.gamePhase !== 'playing' || isSpectator}
-          />
+          <div className="relative z-50 -mt-1 mb-2">
+            <GameControls
+              selectedCards={selectedCards}
+              currentClaim={gameState.claim}
+              canPlay={canPlay}
+              canChallenge={canChallenge}
+              canPass={canPass}
+              onPlay={handlePlay}
+              onChallenge={handleChallenge}
+              onPass={handlePass}
+            />
+          </div>
 
           <div className="bottom-bar w-full flex items-center justify-center relative min-h-[70px] landscape:min-h-[50px]">
             <div className="absolute inset-0 flex items-center justify-center landscape:scale-90 landscape:-translate-y-1">

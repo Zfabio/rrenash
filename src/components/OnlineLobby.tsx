@@ -200,14 +200,14 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               <Button 
-                className="w-full" 
+                className="w-full text-xl py-6 shadow-xl" 
                 size="lg" 
                 onClick={() => setMode('create')}
               >
                 {txt.createRoom}
               </Button>
               <Button 
-                className="w-full" 
+                className="w-full text-xl py-6 border-primary/50 text-primary hover:bg-primary/10" 
                 size="lg" 
                 variant="outline"
                 onClick={() => setMode('join')}
@@ -242,24 +242,25 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-sm font-medium">{txt.nickname}</label>
+                <label className="text-base md:text-lg font-medium">{txt.nickname}</label>
                 <Input 
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
                   placeholder="Enter your name"
                   maxLength={20}
+                  className="text-lg py-6"
                 />
               </div>
               
               <div>
-                <label className="text-sm font-medium">{txt.maxPlayers}</label>
-                <div className="flex gap-2 mt-1">
+                <label className="text-base md:text-lg font-medium">{txt.maxPlayers}</label>
+                <div className="flex gap-2 mt-2">
                   {[2, 3, 4].map((n) => (
                     <Button
                       key={n}
                       variant={maxPlayers === n ? 'default' : 'outline'}
                       onClick={() => setMaxPlayers(n)}
-                      className="flex-1"
+                      className="flex-1 text-lg py-6"
                     >
                       {n}
                     </Button>
@@ -268,14 +269,14 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
               </div>
 
               <div>
-                <label className="text-sm font-medium">{txt.rounds}</label>
-                <div className="flex gap-2 mt-1">
+                <label className="text-base md:text-lg font-medium">{txt.rounds}</label>
+                <div className="flex gap-2 mt-2">
                   {[1, 2, 3, 5].map((n) => (
                     <Button
                       key={n}
                       variant={totalRounds === n ? 'default' : 'outline'}
                       onClick={() => setTotalRounds(n)}
-                      className="flex-1"
+                      className="flex-1 text-lg py-6"
                     >
                       {n}
                     </Button>
@@ -288,12 +289,12 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
               )}
 
               <Button 
-                className="w-full" 
+                className="w-full text-xl py-6 shadow-xl mt-4" 
                 size="lg"
                 onClick={handleCreate}
                 disabled={!nickname.trim() || isLoading}
               >
-                {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
                 {txt.create}
               </Button>
             </CardContent>
@@ -323,23 +324,24 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-sm font-medium">{txt.nickname}</label>
+                <label className="text-base md:text-lg font-medium">{txt.nickname}</label>
                 <Input 
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
                   placeholder="Enter your name"
                   maxLength={20}
+                  className="text-lg py-6"
                 />
               </div>
               
               <div>
-                <label className="text-sm font-medium">{txt.roomCodeLabel}</label>
+                <label className="text-base md:text-lg font-medium">{txt.roomCodeLabel}</label>
                 <Input 
                   value={roomCode}
                   onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
                   placeholder={txt.enterCode}
                   maxLength={6}
-                  className="font-mono text-center text-xl tracking-widest"
+                  className="font-mono text-center text-2xl tracking-widest py-6 uppercase"
                 />
               </div>
 
@@ -348,12 +350,12 @@ export function OnlineLobby({ multiplayer, onBack }: OnlineLobbyProps) {
               )}
 
               <Button 
-                className="w-full" 
+                className="w-full text-xl py-6 shadow-xl mt-4" 
                 size="lg"
                 onClick={handleJoin}
                 disabled={!nickname.trim() || roomCode.length !== 6 || isLoading}
               >
-                {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
                 {txt.join}
               </Button>
             </CardContent>

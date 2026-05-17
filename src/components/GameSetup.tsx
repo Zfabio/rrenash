@@ -70,14 +70,14 @@ export function GameSetup({ onStartGame, onOnlinePlay }: GameSetupProps) {
           <div className="flex flex-col gap-3 pt-4">
             <button
               onClick={() => onStartGame(numPlayers, totalRounds)}
-              className="w-full py-3.5 text-lg font-semibold text-primary-foreground bg-primary rounded-full hover:brightness-110 transition-all shadow-md"
+              className="w-full py-5 text-xl font-semibold text-primary-foreground bg-primary rounded-full hover:brightness-110 transition-all shadow-md"
             >
               <Play className="w-5 h-5 inline mr-2" />
               {t.startGame}
             </button>
             <button
               onClick={() => setShowPlayerSetup(false)}
-              className="w-full py-3 text-base text-foreground/60 border border-border rounded-full hover:bg-secondary/50 transition-colors"
+              className="w-full py-4 text-lg text-foreground/60 border border-border rounded-full hover:bg-secondary/50 transition-colors"
             >
               <ArrowLeft className="w-4 h-4 inline mr-2" />
               {backText}
@@ -109,18 +109,18 @@ export function GameSetup({ onStartGame, onOnlinePlay }: GameSetupProps) {
           {onOnlinePlay && (
             <button
               onClick={onOnlinePlay}
-              className="w-full py-4 text-xl font-bold text-primary-foreground bg-primary rounded-full hover:brightness-110 transition-all shadow-lg hover:scale-105 flex items-center justify-center"
+              className="w-full py-5 md:py-6 text-xl md:text-2xl font-bold text-primary-foreground bg-primary rounded-full hover:brightness-110 transition-all shadow-lg hover:scale-105 flex items-center justify-center"
             >
-              <Globe className="w-6 h-6" />
+              <Globe className="w-6 h-6 md:w-7 md:h-7 mr-2" />
               {onlineText}
             </button>
           )}
 
           <button
             onClick={() => setShowRules(true)}
-            className="w-full py-3.5 text-lg font-semibold text-foreground/80 bg-secondary/30 border border-border rounded-full hover:bg-secondary/50 transition-all hover:scale-105 flex items-center justify-center"
+            className="w-full py-4 md:py-5 text-lg md:text-xl font-semibold text-foreground/80 bg-secondary/30 border border-border rounded-full hover:bg-secondary/50 transition-all hover:scale-105 flex items-center justify-center"
           >
-            <GraduationCap className="w-5 h-5" />
+            <GraduationCap className="w-5 h-5 md:w-6 md:h-6 mr-2" />
             {rulesTitle}
           </button>
         </div>

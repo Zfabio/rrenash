@@ -355,28 +355,32 @@ export function OnlineGameBoard({ multiplayer, onLeave }: OnlineGameBoardProps) 
         {/* === BOTTOM: Controls + Hand === */}
         <div className={cn(
           'absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center',
-          isMobile ? 'gap-1' : 'gap-2',
+          isMobile ? 'gap-0' : 'gap-1',
         )}>
-          {/* Controls */}
-          <GameControls
-            selectedCards={selectedCards}
-            currentClaim={gameState.claim}
-            canPlay={canPlay}
-            canChallenge={canChallenge}
-            canPass={canPass}
-            onPlay={handlePlay}
-            onChallenge={handleChallenge}
-            onPass={handlePass}
-          />
-
           {/* My hand */}
-          <MyHand
-            player={myGamePlayer}
-            isCurrentPlayer={isMyTurn}
-            selectedCards={selectedCards}
-            onCardSelect={handleCardSelect}
-            disabled={!isMyTurn || gameState.game_phase !== 'playing' || isSpectator}
-          />
+          <div className="w-full relative z-10">
+            <MyHand
+              player={myGamePlayer}
+              isCurrentPlayer={isMyTurn}
+              selectedCards={selectedCards}
+              onCardSelect={handleCardSelect}
+              disabled={!isMyTurn || gameState.game_phase !== 'playing' || isSpectator}
+            />
+          </div>
+
+          {/* Controls - Placed right above the avatar so cards fan upwards away from them */}
+          <div className="relative z-50 -mt-1 mb-2">
+            <GameControls
+              selectedCards={selectedCards}
+              currentClaim={gameState.claim}
+              canPlay={canPlay}
+              canChallenge={canChallenge}
+              canPass={canPass}
+              onPlay={handlePlay}
+              onChallenge={handleChallenge}
+              onPass={handlePass}
+            />
+          </div>
 
           {/* Bottom bar with my avatar only */}
           <div className={cn(
